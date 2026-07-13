@@ -187,14 +187,14 @@
                   id="tax-price-input"
                   name="taxInclusivePrice"
                   type="text"
-                  inputmode="decimal"
+                  inputmode="numeric"
                   enterkeyhint="done"
                   autocomplete="off"
                   maxlength="18"
                   aria-describedby="tax-price-help tax-price-error"
                 />
               </div>
-              <p class="field-help" id="tax-price-help">支持最多两位小数；直接编辑金额会切换为自定义。</p>
+              <p class="field-help" id="tax-price-help">仅支持整数金额；直接编辑金额会切换为自定义。</p>
               <p class="field-error" id="tax-price-error" role="alert" hidden></p>
             </fieldset>
 
@@ -226,7 +226,7 @@
               <div class="custom-rate-field" id="custom-income-tax-wrap" hidden>
                 <label class="field-label" for="custom-income-tax-rate">自定义企业所得税率</label>
                 <div class="rate-input-wrap">
-                  <input id="custom-income-tax-rate" type="text" inputmode="decimal" autocomplete="off" maxlength="6" aria-describedby="custom-income-tax-error" />
+                  <input id="custom-income-tax-rate" type="text" inputmode="numeric" autocomplete="off" maxlength="3" aria-describedby="custom-income-tax-error" />
                   <span>%</span>
                 </div>
                 <p class="field-error" id="custom-income-tax-error" role="alert" hidden></p>

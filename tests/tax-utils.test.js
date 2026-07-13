@@ -74,7 +74,7 @@ test("zero and one-cent amounts remain finite and non-negative", () => {
   assert.equal(zero.estimatedNetCost, 0);
   assert.equal(cent.minorUnits.taxInclusivePrice, 1);
   assert.ok(cent.minorUnits.estimatedNetCost >= 0);
-  assert.equal(formatCurrency(-0), "¥0.00");
+  assert.equal(formatCurrency(-0), "¥0");
 });
 
 test("decimal amounts use cent-based deterministic rounding", () => {
@@ -94,7 +94,8 @@ test("decimal amounts use cent-based deterministic rounding", () => {
     result.minorUnits.totalEstimatedSaving,
     result.minorUnits.deductibleVat + result.minorUnits.incomeTaxSaving,
   );
-  assert.equal(formatCurrency("1234.56"), "¥1,234.56");
+  assert.equal(formatCurrency("1234.56"), "¥1,235");
+  assert.equal(formatCurrency("1234.49"), "¥1,234");
 });
 
 test("largest supported amount is calculated without floating-point overflow", () => {

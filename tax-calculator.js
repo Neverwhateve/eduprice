@@ -52,9 +52,9 @@
     inputErrors: { price: "", income: "" },
   };
 
-  const decimalFormatter = new Intl.NumberFormat("zh-CN", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+  const integerFormatter = new Intl.NumberFormat("zh-CN", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   });
 
   function setText(id, value) {
@@ -126,12 +126,12 @@
   function formatRate(rate) {
     const numericRate = Number(rate);
     if (!Number.isFinite(numericRate)) return "—";
-    return `${numericRate.toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1")}%`;
+    return `${Math.round(numericRate)}%`;
   }
 
   function formatInputAmount(value) {
     const validation = utils.validateMoneyInput(value);
-    return validation.valid ? decimalFormatter.format(validation.cents / 100) : value;
+    return validation.valid ? integerFormatter.format(validation.cents / 100) : value;
   }
 
   function selectPriceSource(source) {
@@ -252,7 +252,7 @@
   }
 
   function handleDecimalInput(input, stateKey, errorKey, maxIntegerDigits) {
-    const sanitized = utils.sanitizeDecimalInput(input.value, { maxIntegerDigits, maxFractionDigits: 2 });
+    const sanitized = utils.sanitizeDecimalInput(input.value, { maxIntegerDigits, maxFractionDigits: 0 });
     input.value = sanitized.value;
     state[stateKey] = sanitized.value;
     state.inputErrors[errorKey] = sanitized.valid ? "" : sanitized.error;

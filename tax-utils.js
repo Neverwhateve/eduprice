@@ -27,8 +27,8 @@
   const currencyFormatter = new Intl.NumberFormat("zh-CN", {
     style: "currency",
     currency: "CNY",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   });
 
   function roundDivision(numerator, denominator) {
