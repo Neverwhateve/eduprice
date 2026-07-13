@@ -1,0 +1,13 @@
+{
+  "name": "eduprice",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "python3 -m http.server 4173",
+    "lint": "node scripts/check.mjs",
+    "typecheck": "node scripts/typecheck.mjs",
+    "test": "node --test tests/*.test.js",
+    "build": "node scripts/build.mjs",
+    "check": "npm run lint && npm run typecheck && npm test && npm run build"
+  }
+}

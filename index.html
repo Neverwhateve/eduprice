@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Apple 教育优惠价格查询</title>
+    <meta name="theme-color" content="#0b2f66" />
+    <meta name="apple-mobile-web-app-title" content="EDU Price" />
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">EDU Price</p>
+          <h1>Apple 教育优惠价</h1>
+          <p class="intro">选择产品和配置，马上看到最终价格。</p>
+        </div>
+        <div class="catalog-note" id="catalog-count">0 款配置</div>
+      </header>
+
+      <div class="category-switch" role="tablist" aria-label="选择产品类型">
+        <button class="category-button is-active" type="button" role="tab" aria-selected="true" data-category="mac">
+          Mac
+        </button>
+        <button class="category-button" type="button" role="tab" aria-selected="false" data-category="ipad">
+          iPad
+        </button>
+        <button class="category-button" type="button" role="tab" aria-selected="false" data-category="acc">
+          配件
+        </button>
+      </div>
+
+      <div class="mode-switch" id="mode-switch" role="tablist" aria-label="选择方式">
+        <button id="card-mode" class="mode-button is-active" type="button" role="tab" aria-selected="true">
+          直接选择
+        </button>
+        <button id="step-mode" class="mode-button" type="button" role="tab" aria-selected="false">
+          分步选择
+        </button>
+      </div>
+
+      <section class="picker-layout" aria-label="教育优惠价格选择器">
+        <div class="picker-panel">
+          <div class="picker-view is-active" id="card-picker">
+            <div class="step">
+              <div class="step-title">
+                <span>1</span>
+                <div>
+                  <h2>选择机型</h2>
+                  <p class="step-hint" id="card-model-hint"></p>
+                </div>
+              </div>
+              <div class="choice-grid model-grid" id="model-options"></div>
+            </div>
+
+            <div class="step">
+              <div class="step-title">
+                <span>2</span>
+                <div>
+                  <h2>选择配置</h2>
+                  <p class="step-hint" id="card-config-hint"></p>
+                </div>
+              </div>
+              <div class="choice-grid config-grid" id="config-options"></div>
+            </div>
+          </div>
+
+          <div class="picker-view" id="step-picker">
+            <div class="step">
+              <div class="step-title">
+                <span>1</span>
+                <div>
+                  <h2>型号尺寸</h2>
+                  <p class="step-hint" id="step-model-hint"></p>
+                </div>
+              </div>
+              <div class="choice-grid model-grid" id="step-model-options"></div>
+            </div>
+
+            <div class="step">
+              <div class="step-title">
+                <span>2</span>
+                <div>
+                  <h2>CPU / GPU</h2>
+                  <p class="step-hint" id="step-cpu-hint"></p>
+                </div>
+              </div>
+              <div class="choice-grid option-grid" id="step-cpu-options"></div>
+            </div>
+
+            <div class="step">
+              <div class="step-title">
+                <span>3</span>
+                <div>
+                  <h2>内存</h2>
+                  <p class="step-hint" id="step-memory-hint"></p>
+                </div>
+              </div>
+              <div class="choice-grid option-grid" id="step-memory-options"></div>
+            </div>
+
+            <div class="step">
+              <div class="step-title">
+                <span>4</span>
+                <div>
+                  <h2>容量</h2>
+                  <p class="step-hint" id="step-storage-hint"></p>
+                </div>
+              </div>
+              <div class="choice-grid option-grid" id="step-storage-options"></div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="result-panel" aria-label="最终价格">
+          <div class="result-heading">
+            <p>最终价格</p>
+            <h2 id="result-model">请选择配置</h2>
+          </div>
+
+          <div class="price-hero">
+            <span>教育优惠价</span>
+            <strong id="result-edu">-</strong>
+          </div>
+
+          <dl class="result-list">
+            <div>
+              <dt>官网价格</dt>
+              <dd id="result-official">-</dd>
+            </div>
+            <div>
+              <dt>节省</dt>
+              <dd id="result-saving">-</dd>
+            </div>
+            <div>
+              <dt id="result-spec-1-label">芯片</dt>
+              <dd id="result-chip">-</dd>
+            </div>
+            <div>
+              <dt id="result-spec-2-label">CPU / GPU</dt>
+              <dd id="result-cpu">-</dd>
+            </div>
+            <div>
+              <dt id="result-spec-3-label">内存</dt>
+              <dd id="result-memory">-</dd>
+            </div>
+            <div>
+              <dt id="result-spec-4-label">硬盘</dt>
+              <dd id="result-storage">-</dd>
+            </div>
+          </dl>
+
+          <button class="add-to-cart-button" id="add-to-cart" type="button">加入组合</button>
+          <button class="tax-entry-button" id="open-tax-calculator" type="button">
+            计算企业抵税
+          </button>
+        </aside>
+      </section>
+
+      <section class="tax-panel" id="tax-calculator" aria-labelledby="tax-calculator-title" hidden>
+        <div class="tax-header">
+          <div>
+            <p class="section-label">企业采购工具</p>
+            <h2 id="tax-calculator-title">企业抵税估算</h2>
+            <p class="tax-intro" id="tax-product-context">根据当前产品价格估算税务影响。</p>
+          </div>
+          <button class="quiet-button" id="close-tax-calculator" type="button">收起</button>
+        </div>
+
+        <div class="tax-layout">
+          <form class="tax-controls" id="tax-form" novalidate>
+            <fieldset class="tax-fieldset">
+              <legend>计算金额</legend>
+              <div class="segmented-control price-source-control" id="tax-price-source" role="radiogroup" aria-label="选择价格来源">
+                <button type="button" role="radio" aria-checked="true" data-price-source="edu">教育优惠价</button>
+                <button type="button" role="radio" aria-checked="false" data-price-source="official">官方零售价</button>
+                <button type="button" role="radio" aria-checked="false" data-price-source="custom">自定义金额</button>
+              </div>
+
+              <label class="field-label" for="tax-price-input">含税金额</label>
+              <div class="money-input-wrap">
+                <span aria-hidden="true">¥</span>
+                <input
+                  id="tax-price-input"
+                  name="taxInclusivePrice"
+                  type="text"
+                  inputmode="decimal"
+                  enterkeyhint="done"
+                  autocomplete="off"
+                  maxlength="18"
+                  aria-describedby="tax-price-help tax-price-error"
+                />
+              </div>
+              <p class="field-help" id="tax-price-help">支持最多两位小数；直接编辑金额会切换为自定义。</p>
+              <p class="field-error" id="tax-price-error" role="alert" hidden></p>
+            </fieldset>
+
+            <fieldset class="tax-fieldset">
+              <legend>增值税税率</legend>
+              <div class="rate-options" id="vat-rate-options" role="radiogroup" aria-label="增值税税率"></div>
+              <div class="custom-rate-field" id="custom-vat-wrap" hidden>
+                <label class="field-label" for="custom-vat-rate">自定义增值税税率</label>
+                <div class="rate-input-wrap">
+                  <input id="custom-vat-rate" type="text" inputmode="decimal" autocomplete="off" maxlength="6" aria-describedby="custom-vat-error" />
+                  <span>%</span>
+                </div>
+                <p class="field-error" id="custom-vat-error" role="alert" hidden></p>
+              </div>
+            </fieldset>
+
+            <div class="tax-select-grid">
+              <label class="select-field" for="invoice-type">
+                <span>发票类型</span>
+                <select id="invoice-type"></select>
+              </label>
+              <label class="select-field" for="taxpayer-type">
+                <span>企业身份</span>
+                <select id="taxpayer-type"></select>
+              </label>
+            </div>
+
+            <div class="deduction-status" id="deduction-status" role="status"></div>
+
+            <fieldset class="tax-fieldset">
+              <legend>企业所得税估算税率</legend>
+              <p class="field-help">这是可调整的理论估算税率，并非所有企业统一适用。</p>
+              <div class="rate-options" id="income-tax-rate-options" role="radiogroup" aria-label="企业所得税估算税率"></div>
+              <div class="custom-rate-field" id="custom-income-tax-wrap" hidden>
+                <label class="field-label" for="custom-income-tax-rate">自定义企业所得税率</label>
+                <div class="rate-input-wrap">
+                  <input id="custom-income-tax-rate" type="text" inputmode="decimal" autocomplete="off" maxlength="6" aria-describedby="custom-income-tax-error" />
+                  <span>%</span>
+                </div>
+                <p class="field-error" id="custom-income-tax-error" role="alert" hidden></p>
+              </div>
+            </fieldset>
+
+            <button class="reset-tax-button" id="reset-tax-calculator" type="button">恢复默认设置</button>
+          </form>
+
+          <div class="tax-results" id="tax-results" aria-live="polite">
+            <div class="tax-cost-hero">
+              <span>抵税后预计实际成本</span>
+              <strong id="estimated-net-cost">—</strong>
+              <p>按当前金额、税率与抵扣条件进行理论估算</p>
+            </div>
+
+            <div class="saving-highlight">
+              <span>预计总节省</span>
+              <strong id="total-estimated-saving">—</strong>
+            </div>
+
+            <dl class="tax-detail-list">
+              <div><dt>含税金额</dt><dd id="detail-inclusive-price">—</dd></div>
+              <div><dt>不含税金额</dt><dd id="detail-exclusive-price">—</dd></div>
+              <div><dt>增值税税率</dt><dd id="detail-vat-rate">—</dd></div>
+              <div><dt>增值税税额</dt><dd id="detail-vat-amount">—</dd></div>
+              <div><dt>预计可抵扣增值税</dt><dd id="detail-deductible-vat">—</dd></div>
+              <div><dt>企业所得税估算税率</dt><dd id="detail-income-tax-rate">—</dd></div>
+              <div><dt>预计所得税节省</dt><dd id="detail-income-tax-saving">—</dd></div>
+            </dl>
+
+            <div class="tax-comparison">
+              <div class="tax-comparison-heading">
+                <p class="section-label">价格对比</p>
+                <h3>教育优惠与税务估算</h3>
+              </div>
+              <dl class="tax-detail-list compact">
+                <div><dt>官方零售价</dt><dd id="comparison-official-price">—</dd></div>
+                <div><dt>教育优惠价</dt><dd id="comparison-edu-price">—</dd></div>
+                <div><dt>教育优惠直接节省</dt><dd id="comparison-direct-saving">—</dd></div>
+                <div><dt>教育优惠价抵税后预计成本</dt><dd id="comparison-edu-net-cost">—</dd></div>
+                <div class="comparison-total"><dt>相比官方零售价的预计总差额</dt><dd id="comparison-total-difference">—</dd></div>
+              </dl>
+              <p class="comparison-note">教育优惠资格与企业采购、发票规则不一定能够叠加；价格资格、发票类型及购买渠道请以实际结账页面和相关政策为准。</p>
+            </div>
+
+            <p class="tax-disclaimer">
+              以上结果仅供估算，不构成税务、财务或法律建议。实际可抵扣金额可能因纳税人身份、发票类型、成本费用确认、企业经营状况及当地政策而不同，请以企业财务人员或税务机关确认结果为准。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="cart-panel" aria-label="设备组合">
+        <div class="cart-header">
+          <div>
+            <p class="section-label">设备组合</p>
+            <h2>组合价格和参数对比</h2>
+          </div>
+          <button class="clear-cart-button" id="clear-cart" type="button">清空</button>
+        </div>
+
+        <div class="cart-summary">
+          <div>
+            <span>已选设备</span>
+            <strong id="cart-count">0 台</strong>
+          </div>
+          <div>
+            <span>组合教育价</span>
+            <strong id="cart-edu-total">¥ 0</strong>
+          </div>
+          <div>
+            <span>官网合计</span>
+            <strong id="cart-official-total">¥ 0</strong>
+          </div>
+          <div>
+            <span>合计节省</span>
+            <strong id="cart-saving-total">¥ 0</strong>
+          </div>
+        </div>
+
+        <div class="cart-empty" id="cart-empty">
+          先选择一个设备或配件，再点击“加入组合”。
+        </div>
+
+        <div class="cart-items" id="cart-items"></div>
+
+        <div class="comparison-wrap" id="comparison-wrap">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>设备</th>
+                <th>分类</th>
+                <th>参数 1</th>
+                <th>参数 2</th>
+                <th>参数 3</th>
+                <th>参数 4</th>
+                <th>教育价</th>
+                <th>节省</th>
+              </tr>
+            </thead>
+            <tbody id="comparison-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <div class="update-toast" id="update-toast" role="status" aria-live="polite" hidden>
+      <span id="update-toast-text">正在更新离线缓存...</span>
+    </div>
+
+    <script src="tax-utils.js"></script>
+    <script src="app.js"></script>
+    <script src="tax-calculator.js"></script>
+    <script src="pwa.js"></script>
+  </body>
+</html>
