@@ -41,6 +41,8 @@
 
   const state = {
     product: app.getSelectedProduct(),
+    calculationScope: "product",
+    cartSummary: null,
     priceSource: "official",
     customAmount: "",
     incomeTaxChoice: String(TAX_CONFIG.defaultIncomeTaxRate),
@@ -99,10 +101,22 @@
   }
 
   function currentAmount() {
-    if (!state.product) return "0";
-    if (state.priceSource === "official") return String(state.product.officialPrice);
+    if (!hasTaxContext()) return "0";
+    if (state.priceSource === "official") return String(officialAmount());
     if (state.priceSource === "custom") return state.customAmount;
-    return String(state.product.officialPrice);
+    return String(officialAmount());
+  }
+
+  function hasTaxContext() {
+    if (state.calculationScope === "cart") {
+      return Boolean(state.cartSummary && state.cartSummary.itemCount > 0 && state.cartSummary.officialTotal > 0);
+    }
+    return Boolean(state.product);
+  }
+
+  function officialAmount() {
+    if (state.calculationScope === "cart") return state.cartSummary?.officialTotal || 0;
+    return state.product?.officialPrice || 0;
   }
 
   function effectiveRate(choice, customValue) {
@@ -133,9 +147,13 @@
 
   function renderControls() {
     const product = state.product;
-    elements.context.textContent = product
-      ? `${product.model} · 企业采购按官方零售价 ${utils.formatCurrency(product.officialPrice)} 估算`
-      : "选择产品后即可自动带入价格。";
+    const officialSourceButton = elements.sourceButtons.find((button) => button.dataset.priceSource === "official");
+    officialSourceButton.textContent = state.calculationScope === "cart" ? "组合官网合计" : "官方零售价";
+    elements.context.textContent = state.calculationScope === "cart" && state.cartSummary
+      ? `设备组合 · ${state.cartSummary.itemCount} 件 · 官网合计 ${utils.formatCurrency(state.cartSummary.officialTotal)}`
+      : product
+        ? `${product.model} · 企业采购按官方零售价 ${utils.formatCurrency(product.officialPrice)} 估算`
+        : "选择产品后即可自动带入价格。";
 
     elements.sourceButtons.forEach((button) => {
       const selected = button.dataset.priceSource === state.priceSource;
@@ -194,7 +212,7 @@
     setFieldError(elements.customIncomeError, state.incomeTaxChoice === "custom" ? state.inputErrors.income : "");
     elements.results.classList.toggle("is-unavailable", Boolean(hasBlockingError));
 
-    if (hasBlockingError || !state.product) {
+    if (hasBlockingError || !hasTaxContext()) {
       clearResultValues();
       return;
     }
@@ -223,7 +241,7 @@
 
   function resetCalculator() {
     state.priceSource = "official";
-    state.customAmount = state.product ? String(state.product.officialPrice) : "";
+    state.customAmount = hasTaxContext() ? String(officialAmount()) : "";
     state.incomeTaxChoice = String(TAX_CONFIG.defaultIncomeTaxRate);
     state.customIncomeTaxRate = "";
     state.invoiceType = TAX_CONFIG.defaultInvoiceType;
@@ -252,8 +270,13 @@
   fillSelect(elements.taxpayerType, TAX_CONFIG.taxpayerTypes, state.taxpayerType);
 
   openButton.addEventListener("click", () => {
-    panel.hidden = false;
+    state.calculationScope = "product";
+    state.cartSummary = null;
     state.product = app.getSelectedProduct();
+    state.priceSource = "official";
+    state.customAmount = state.product ? String(state.product.officialPrice) : "";
+    state.inputErrors.price = "";
+    panel.hidden = false;
     renderControls();
     updateCalculations();
     panel.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -305,11 +328,26 @@
 
   window.addEventListener("eduprice:selectionchange", (event) => {
     state.product = event.detail.product;
-    if (state.priceSource !== "custom") state.inputErrors.price = "";
-    if (!panel.hidden) {
+    if (state.calculationScope === "product" && state.priceSource !== "custom") state.inputErrors.price = "";
+    if (!panel.hidden && state.calculationScope === "product") {
       renderControls();
       updateCalculations();
     }
+  });
+
+  window.addEventListener("eduprice:carttaxrequest", (event) => {
+    const itemCount = Number(event.detail?.itemCount);
+    const officialTotal = Number(event.detail?.officialTotal);
+    if (!Number.isInteger(itemCount) || itemCount < 1 || !Number.isFinite(officialTotal) || officialTotal <= 0) return;
+    state.calculationScope = "cart";
+    state.cartSummary = { itemCount, officialTotal };
+    state.priceSource = "official";
+    state.customAmount = String(officialTotal);
+    state.inputErrors.price = "";
+    panel.hidden = false;
+    renderControls();
+    updateCalculations();
+    panel.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
   resetCalculator();

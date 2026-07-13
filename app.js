@@ -130,6 +130,7 @@ const stepCpuHint = document.querySelector("#step-cpu-hint");
 const stepMemoryHint = document.querySelector("#step-memory-hint");
 const stepStorageHint = document.querySelector("#step-storage-hint");
 const addToCartButton = document.querySelector("#add-to-cart");
+const calculateCartTaxButton = document.querySelector("#calculate-cart-tax");
 const clearCartButton = document.querySelector("#clear-cart");
 const cartCount = document.querySelector("#cart-count");
 const cartEduTotal = document.querySelector("#cart-edu-total");
@@ -400,6 +401,20 @@ function clearCart() {
   cartIds = [];
   renderCart();
   renderResult();
+}
+
+function requestCartTaxEstimate() {
+  const items = cartProducts();
+  if (!items.length) return;
+  const officialTotal = items.reduce((sum, item) => sum + item.officialPrice, 0);
+  window.dispatchEvent(
+    new CustomEvent("eduprice:carttaxrequest", {
+      detail: {
+        itemCount: items.length,
+        officialTotal,
+      },
+    }),
+  );
 }
 
 function renderModels() {
@@ -713,6 +728,7 @@ function renderCart() {
   cartEduTotal.textContent = price(eduTotal);
   cartOfficialTotal.textContent = price(officialTotal);
   cartSavingTotal.textContent = price(savingTotal);
+  calculateCartTaxButton.disabled = items.length === 0;
   clearCartButton.disabled = items.length === 0;
   cartEmpty.hidden = items.length > 0;
   comparisonWrap.hidden = items.length === 0;
@@ -835,6 +851,7 @@ stepModeButton.addEventListener("click", () => {
 });
 
 addToCartButton.addEventListener("click", addSelectedToCart);
+calculateCartTaxButton.addEventListener("click", requestCartTaxEstimate);
 clearCartButton.addEventListener("click", clearCart);
 
 window.eduPriceApp = Object.freeze({

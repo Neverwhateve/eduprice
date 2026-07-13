@@ -259,7 +259,7 @@
             </dl>
 
             <p class="tax-disclaimer">
-              企业抵税估算仅使用官方零售价或自定义企业采购金额，不与教育优惠叠加。以上结果仅供估算，不构成税务、财务或法律建议。实际可抵扣金额可能因纳税人身份、发票类型、成本费用确认、企业经营状况及当地政策而不同，请以企业财务人员或税务机关确认结果为准。
+              企业抵税估算仅使用单品官方零售价、组合官网合计或自定义企业采购金额，不与教育优惠叠加。以上结果仅供估算，不构成税务、财务或法律建议。实际可抵扣金额可能因纳税人身份、发票类型、成本费用确认、企业经营状况及当地政策而不同，请以企业财务人员或税务机关确认结果为准。
             </p>
           </div>
         </div>
@@ -271,7 +271,10 @@
             <p class="section-label">设备组合</p>
             <h2>组合价格和参数对比</h2>
           </div>
-          <button class="clear-cart-button" id="clear-cart" type="button">清空</button>
+          <div class="cart-header-actions">
+            <button class="cart-tax-button" id="calculate-cart-tax" type="button" disabled>计算组合企业抵税</button>
+            <button class="clear-cart-button" id="clear-cart" type="button">清空</button>
+          </div>
         </div>
 
         <div class="cart-summary">

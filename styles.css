@@ -413,6 +413,7 @@ dd {
 .reset-tax-button,
 .rate-options button,
 .segmented-control button,
+.cart-tax-button,
 .clear-cart-button,
 .cart-item button {
   border: 0;
@@ -435,6 +436,7 @@ dd {
 }
 
 .add-to-cart-button:disabled,
+.cart-tax-button:disabled,
 .clear-cart-button:disabled {
   cursor: not-allowed;
   opacity: 0.48;
@@ -478,6 +480,25 @@ dd {
   font-size: 26px;
   line-height: 1.15;
   font-weight: 850;
+}
+
+.cart-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cart-tax-button {
+  min-height: 38px;
+  border: 1px solid var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  padding: 0 14px;
+}
+
+.cart-tax-button:hover:not(:disabled) {
+  background: var(--accent);
+  color: #fff;
 }
 
 .clear-cart-button {
@@ -1108,8 +1129,14 @@ select:focus-visible {
     flex-direction: column;
   }
 
+  .cart-header-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .cart-tax-button,
   .clear-cart-button {
-    width: fit-content;
+    width: 100%;
   }
 
   .cart-summary {
