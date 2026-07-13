@@ -12,8 +12,14 @@ const {
   validateTaxRate,
 } = require("../tax-utils.js");
 
-test("enterprise calculator uses a fixed 13% VAT default", () => {
+test("enterprise calculator uses eligible invoice and taxpayer defaults", () => {
   assert.equal(TAX_CONFIG.defaultVatRate, 13);
+  assert.equal(TAX_CONFIG.defaultInvoiceType, "special");
+  assert.equal(TAX_CONFIG.defaultTaxpayerType, "general");
+  assert.equal(
+    canDeductVat(TAX_CONFIG.defaultInvoiceType, TAX_CONFIG.defaultTaxpayerType),
+    true,
+  );
   assert.equal(Object.hasOwn(TAX_CONFIG, "vatRates"), false);
 });
 

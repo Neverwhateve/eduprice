@@ -10,8 +10,8 @@
     incomeTaxRates: Object.freeze([25, 20, 5]),
     defaultVatRate: 13,
     defaultIncomeTaxRate: 5,
-    defaultInvoiceType: "uncertain",
-    defaultTaxpayerType: "uncertain",
+    defaultInvoiceType: "special",
+    defaultTaxpayerType: "general",
     invoiceTypes: Object.freeze([
       Object.freeze({ value: "special", label: "增值税专用发票" }),
       Object.freeze({ value: "ordinary", label: "增值税普通发票" }),
