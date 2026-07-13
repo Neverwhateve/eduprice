@@ -3,6 +3,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const {
+  TAX_CONFIG,
   calculateTaxEstimate,
   canDeductVat,
   formatCurrency,
@@ -10,6 +11,11 @@ const {
   validateMoneyInput,
   validateTaxRate,
 } = require("../tax-utils.js");
+
+test("enterprise calculator uses a fixed 13% VAT default", () => {
+  assert.equal(TAX_CONFIG.defaultVatRate, 13);
+  assert.equal(Object.hasOwn(TAX_CONFIG, "vatRates"), false);
+});
 
 test("13% VAT and 5% income tax with VAT deduction", () => {
   const result = calculateTaxEstimate({

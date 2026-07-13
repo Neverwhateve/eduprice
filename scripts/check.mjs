@@ -42,7 +42,10 @@ for (const selector of calculator.matchAll(/querySelector\("#([^"]+)"\)/g)) {
 }
 
 if (!html.includes("不构成税务、财务或法律建议")) failures.push("缺少税务免责声明");
-if (!html.includes("价格资格、发票类型及购买渠道")) failures.push("缺少价格资格说明");
+if (!html.includes("不与教育优惠叠加")) failures.push("缺少企业抵税与教育优惠互斥说明");
+if (html.includes('data-price-source="edu"')) failures.push("企业抵税金额来源不应包含教育优惠价");
+if (html.includes("custom-vat-rate") || html.includes("vat-rate-options")) failures.push("企业抵税不应提供增值税税率切换");
+if (!html.includes('aria-label="固定增值税税率 13%"')) failures.push("企业抵税缺少固定 13% 增值税税率说明");
 
 if (failures.length) {
   console.error(failures.join("\n"));

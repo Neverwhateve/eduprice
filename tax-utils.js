@@ -7,7 +7,6 @@
   const PERCENT_SCALE = 10000;
 
   const TAX_CONFIG = Object.freeze({
-    vatRates: Object.freeze([13, 9, 6, 3]),
     incomeTaxRates: Object.freeze([25, 20, 5]),
     defaultVatRate: 13,
     defaultIncomeTaxRate: 5,

@@ -176,8 +176,7 @@
             <fieldset class="tax-fieldset">
               <legend>计算金额</legend>
               <div class="segmented-control price-source-control" id="tax-price-source" role="radiogroup" aria-label="选择价格来源">
-                <button type="button" role="radio" aria-checked="true" data-price-source="edu">教育优惠价</button>
-                <button type="button" role="radio" aria-checked="false" data-price-source="official">官方零售价</button>
+                <button type="button" role="radio" aria-checked="true" data-price-source="official">官方零售价</button>
                 <button type="button" role="radio" aria-checked="false" data-price-source="custom">自定义金额</button>
               </div>
 
@@ -201,14 +200,9 @@
 
             <fieldset class="tax-fieldset">
               <legend>增值税税率</legend>
-              <div class="rate-options" id="vat-rate-options" role="radiogroup" aria-label="增值税税率"></div>
-              <div class="custom-rate-field" id="custom-vat-wrap" hidden>
-                <label class="field-label" for="custom-vat-rate">自定义增值税税率</label>
-                <div class="rate-input-wrap">
-                  <input id="custom-vat-rate" type="text" inputmode="decimal" autocomplete="off" maxlength="6" aria-describedby="custom-vat-error" />
-                  <span>%</span>
-                </div>
-                <p class="field-error" id="custom-vat-error" role="alert" hidden></p>
+              <div class="fixed-rate-display" aria-label="固定增值税税率 13%">
+                <strong>13%</strong>
+                <span>企业采购估算固定采用 13%</span>
               </div>
             </fieldset>
 
@@ -264,23 +258,8 @@
               <div><dt>预计所得税节省</dt><dd id="detail-income-tax-saving">—</dd></div>
             </dl>
 
-            <div class="tax-comparison">
-              <div class="tax-comparison-heading">
-                <p class="section-label">价格对比</p>
-                <h3>教育优惠与税务估算</h3>
-              </div>
-              <dl class="tax-detail-list compact">
-                <div><dt>官方零售价</dt><dd id="comparison-official-price">—</dd></div>
-                <div><dt>教育优惠价</dt><dd id="comparison-edu-price">—</dd></div>
-                <div><dt>教育优惠直接节省</dt><dd id="comparison-direct-saving">—</dd></div>
-                <div><dt>教育优惠价抵税后预计成本</dt><dd id="comparison-edu-net-cost">—</dd></div>
-                <div class="comparison-total"><dt>相比官方零售价的预计总差额</dt><dd id="comparison-total-difference">—</dd></div>
-              </dl>
-              <p class="comparison-note">教育优惠资格与企业采购、发票规则不一定能够叠加；价格资格、发票类型及购买渠道请以实际结账页面和相关政策为准。</p>
-            </div>
-
             <p class="tax-disclaimer">
-              以上结果仅供估算，不构成税务、财务或法律建议。实际可抵扣金额可能因纳税人身份、发票类型、成本费用确认、企业经营状况及当地政策而不同，请以企业财务人员或税务机关确认结果为准。
+              企业抵税估算仅使用官方零售价或自定义企业采购金额，不与教育优惠叠加。以上结果仅供估算，不构成税务、财务或法律建议。实际可抵扣金额可能因纳税人身份、发票类型、成本费用确认、企业经营状况及当地政策而不同，请以企业财务人员或税务机关确认结果为准。
             </p>
           </div>
         </div>

@@ -641,7 +641,6 @@ dd {
 }
 
 .tax-intro,
-.comparison-note,
 .tax-disclaimer,
 .field-help {
   color: var(--muted);
@@ -696,7 +695,7 @@ dd {
 }
 
 .segmented-control {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-bottom: 18px;
 }
 
@@ -804,6 +803,31 @@ dd {
   margin-top: 14px;
 }
 
+.fixed-rate-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 12px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent-soft);
+  padding: 14px 16px;
+  color: var(--accent-ink);
+}
+
+.fixed-rate-display strong {
+  font-size: 24px;
+  font-variant-numeric: tabular-nums;
+}
+
+.fixed-rate-display span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 750;
+  text-align: right;
+}
+
 .field-help,
 .field-error {
   margin: 8px 0 0;
@@ -879,8 +903,7 @@ dd {
 
 .tax-results.is-unavailable .tax-cost-hero,
 .tax-results.is-unavailable .saving-highlight,
-.tax-results.is-unavailable .tax-detail-list,
-.tax-results.is-unavailable .tax-comparison {
+.tax-results.is-unavailable .tax-detail-list {
   opacity: 0.46;
 }
 
@@ -955,43 +978,6 @@ dd {
 
 .tax-detail-list dd {
   font-variant-numeric: tabular-nums;
-}
-
-.tax-comparison {
-  margin: 8px 12px 12px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: #fbfcfe;
-  overflow: hidden;
-}
-
-.tax-comparison-heading {
-  padding: 16px 16px 0;
-}
-
-.tax-comparison-heading h3 {
-  margin: 0;
-  font-size: 18px;
-}
-
-.tax-detail-list.compact {
-  padding: 7px 16px;
-}
-
-.tax-detail-list .comparison-total {
-  align-items: center;
-}
-
-.comparison-total dd {
-  color: var(--saving);
-  font-size: 17px;
-}
-
-.comparison-note {
-  margin: 0;
-  border-top: 1px solid var(--line);
-  padding: 13px 16px;
-  font-size: 11px;
 }
 
 .tax-disclaimer {
@@ -1148,6 +1134,16 @@ select:focus-visible {
 
   .tax-fieldset {
     padding: 14px;
+  }
+
+  .fixed-rate-display {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .fixed-rate-display span {
+    text-align: left;
   }
 
   .rate-options {
