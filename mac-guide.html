@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1d1d1f" />
+    <title>学什么专业，Mac 都专业 · EDU Price</title>
+    <link rel="stylesheet" href="mac-guide.css" />
+  </head>
+  <body>
+    <main>
+      <header class="guide-header">
+        <a class="guide-brand" href="index.html">EDU Price</a>
+        <a class="guide-back" href="index.html">教育优惠价格查询 <span aria-hidden="true">↗</span></a>
+      </header>
+
+      <section class="guide-hero">
+        <div class="guide-shell guide-hero-layout">
+          <div class="guide-hero-copy">
+            <p class="guide-eyebrow">MAC FOR COLLEGE · LEARNING GUIDE</p>
+            <h1>学什么专业，<br /><em>Mac 都专业。</em></h1>
+            <p>从学生的真实学习现场出发，探索对应的专业 App、故事和工作流。</p>
+            <a class="guide-button" href="#majors">探索专业故事 <span aria-hidden="true">↓</span></a>
+          </div>
+          <figure class="guide-hero-image">
+            <img src="assets/mac-guide/major-stories/journalism.jpg" alt="新闻学学生使用 MacBook Air" />
+            <figcaption><span>01 · 新闻传播</span><strong>采访、资料与表达，<br />都在同一段学习旅程里。</strong></figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="guide-intro">
+        <div class="guide-shell"><p class="guide-eyebrow">11 个专业 · 40 个常用 App</p><p>选择一个专业，查看学生使用的工具和对应的学习故事。</p></div>
+      </section>
+
+      <section id="majors" class="guide-majors">
+        <div class="guide-shell">
+          <div class="guide-section-heading"><p class="guide-eyebrow">专业学习现场</p><h2>每个专业，<br />都有自己的学习现场。</h2></div>
+          <div id="major-grid" class="major-grid" aria-label="专业学习故事"></div>
+        </div>
+      </section>
+
+      <section id="major-detail" class="major-detail" hidden aria-live="polite"></section>
+
+      <section class="guide-apps" id="apps">
+        <div class="guide-shell">
+          <div class="guide-catalog-heading"><div><p class="guide-eyebrow">APP 图谱</p><h2>从任务，<br />找到 App。</h2></div><p>搜索 App、专业或学习任务，查看学生场景与完整工具信息。</p></div>
+          <label class="guide-search"><span aria-hidden="true">⌕</span><input id="app-search" type="search" placeholder="搜索 App、专业或学习任务" /></label>
+          <p id="app-count" class="guide-result-count"></p>
+          <div id="app-results" class="app-results"></div>
+        </div>
+      </section>
+    </main>
+
+    <div id="app-drawer" class="app-drawer-layer" hidden></div>
+    <script src="mac-guide-data.js"></script>
+    <script src="mac-guide.js"></script>
+  </body>
+</html>

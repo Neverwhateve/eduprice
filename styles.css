@@ -85,6 +85,26 @@ h1 {
   font-weight: 700;
 }
 
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.guide-entry {
+  border-radius: 8px;
+  background: var(--price-strong);
+  color: #fff;
+  padding: 10px 13px;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.guide-entry:hover {
+  background: #16447f;
+}
+
 .category-switch,
 .mode-switch {
   display: inline-flex;
