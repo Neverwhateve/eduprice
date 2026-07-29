@@ -83,10 +83,24 @@ if ! curl --fail --silent --show-error --location --max-time 20 "${HEALTHCHECK_U
   exit 1
 fi
 
-mapfile -t OLD_RELEASES < <(find "${RELEASES_DIR}" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort -r | tail -n "+$((RELEASE_KEEP + 1))")
-for old_release in "${OLD_RELEASES[@]}"; do
-  rm -rf "${RELEASES_DIR:?}/${old_release}"
-done
+declare -A KEEP_RELEASES=()
+CURRENT_TARGET="$(readlink -f "${CURRENT_LINK}")"
+KEEP_RELEASES["${CURRENT_TARGET}"]=1
+
+# Release identifiers may use different naming schemes (for example, a manual
+# recovery release). Use modification time rather than a lexical sort order,
+# and never prune the release that the current symlink serves.
+kept_count=0
+while IFS= read -r release_dir; do
+  KEEP_RELEASES["${release_dir}"]=1
+  ((kept_count += 1))
+  [[ "${kept_count}" -ge "${RELEASE_KEEP}" ]] && break
+done < <(find "${RELEASES_DIR}" -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' | sort -nr | cut -d' ' -f2-)
+
+while IFS= read -r release_dir; do
+  [[ -n "${KEEP_RELEASES[${release_dir}]:-}" ]] && continue
+  rm -rf "${release_dir}"
+done < <(find "${RELEASES_DIR}" -mindepth 1 -maxdepth 1 -type d)
 
 echo "部署成功：${RELEASE_ID}"
 echo "当前版本：$(readlink -f "${CURRENT_LINK}")"
