@@ -1253,7 +1253,11 @@ render();
   }
 
   root.addEventListener("click", (event) => {
-    const target = event.target.closest("[data-action]");
+    // Safari can report a text node as the click target. Normalize it to an
+    // element before delegating actions so product cards and search results
+    // respond no matter where inside the control the user taps.
+    const eventElement = event.target instanceof Element ? event.target : event.target?.parentElement;
+    const target = eventElement?.closest("[data-action]");
     if (!target) return;
     const { action } = target.dataset;
     if (action === "view") { state.view = target.dataset.view; state.sheet = null; render(); }
