@@ -35,6 +35,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px
 .app-loading { display: grid; min-height: 100dvh; place-items: center; color: var(--muted); font-size: 15px; }
 .screen { min-height: 100dvh; }
 .screen-content { padding: max(20px, env(safe-area-inset-top)) 18px 28px; }
+.home-credit { margin: 46px 0 12px; color: var(--muted); font-size: 11px; letter-spacing: .01em; text-align: center; }
 .app-topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 2px 0 22px; }
 .app-title { margin: 0; font-size: 32px; letter-spacing: -0.055em; line-height: 1.05; }
 .eyebrow { margin: 0 0 5px; color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: 0.02em; }
@@ -148,12 +149,23 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px
 .secondary-button { width: 100%; min-height: 47px; margin-top: 10px; border: 0; border-radius: 13px; background: var(--surface-muted); color: var(--blue); font-size: 15px; font-weight: 600; }
 
 .history-group { margin-top: 25px; }
-.history-group h2 { margin: 0 0 10px; color: var(--muted); font-size: 13px; }
-.history-card { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 12px; }
-.history-card + .history-card { margin-top: 8px; }
-.mode-tag { display: inline-block; margin-top: 6px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); padding: 3px 7px; font-size: 11px; font-weight: 600; }
-.history-actions { display: flex; gap: 8px; margin-top: 12px; }
-.history-actions button { border: 0; border-radius: 8px; background: var(--surface-muted); color: var(--blue); padding: 8px 10px; font-size: 12px; font-weight: 600; }
+.history-group h2 { margin: 0 0 10px; color: var(--muted); font-size: 13px; font-weight: 650; }
+.history-card { overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 0; }
+.history-card + .history-card { margin-top: 2px; }
+.history-card-main { display: grid; width: 100%; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 16px; border: 0; background: transparent; color: var(--ink); padding: 16px; text-align: left; }
+.history-card-main:active { background: var(--surface-muted); }
+.history-entry-copy { min-width: 0; }
+.history-entry-copy .line-title { font-size: 16px; }
+.history-entry-price { display: grid; justify-items: end; gap: 5px; padding-top: 1px; text-align: right; }
+.history-entry-price strong { color: var(--ink); font-size: 17px; font-variant-numeric: tabular-nums; }
+.history-entry-price small { color: var(--muted); font-size: 11px; white-space: nowrap; }
+.mode-tag { display: inline-block; border-radius: 999px; background: var(--blue-soft); color: var(--blue); padding: 4px 8px; font-size: 11px; font-weight: 650; line-height: 1; white-space: nowrap; }
+.history-actions { display: flex; align-items: center; gap: 2px; border-top: 1px solid var(--line); padding: 9px 10px; }
+.history-actions .mode-tag { margin-right: auto; }
+.history-actions button { min-height: 32px; border: 0; border-radius: 8px; background: transparent; color: var(--blue); padding: 0 9px; font-size: 12px; font-weight: 600; }
+.history-actions button:active { background: var(--blue-soft); }
+.history-actions .history-delete { color: #d14242; }
+.history-actions .history-delete:active { background: #fff0f0; }
 .empty-state { display: grid; min-height: 300px; place-items: center; border-radius: var(--radius-lg); background: var(--surface); padding: 36px 26px; text-align: center; }
 .empty-state h2 { margin: 0; font-size: 20px; letter-spacing: -0.04em; }
 .empty-state p { max-width: 250px; margin: 8px 0 0; color: var(--muted); font-size: 14px; line-height: 1.5; }

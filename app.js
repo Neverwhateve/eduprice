@@ -1139,6 +1139,7 @@ render();
       }).join("")}</div></section>` : ""}
       <section class="section"><div class="section-heading"><h2>选择产品</h2><span class="eyebrow">教育优惠</span></div>
       <div class="product-grid">${cards.map((family) => { const items = familyProducts(family); const start = Math.min(...items.map((item) => item.eduPrice)); const isAccessory = family === "Accessories"; const label = isAccessory ? "配件" : family; const action = isAccessory ? "data-action=\"open-accessories\"" : `data-action="select-family" data-family="${family}"`; return `<button class="product-card" type="button" ${action} aria-label="浏览 ${label}">${productVisual(family)}<span><strong class="product-name">${label}</strong><small class="product-meta">${items.length} 种教育优惠配置</small><strong class="product-price">${money(start)} 起</strong></span></button>`; }).join("")}</div></section>
+      <footer class="home-credit">Design by Zzz</footer>
     </div></section>`;
   }
 
@@ -1212,7 +1213,7 @@ render();
 
   function renderHistory() {
     const groups = ["今天", "昨天", "更早"];
-    return `<section class="screen"><div class="screen-content"><header class="app-topbar"><div><p class="eyebrow">EDU Quote</p><h1 class="app-title">历史</h1></div>${history.length ? `<button class="text-button" type="button" data-action="clear-history">清除</button>` : ""}</header>${history.length ? groups.map((label) => { const entries = history.filter((entry) => dateLabel(entry.createdAt) === label); if (!entries.length) return ""; return `<section class="history-group"><h2>${label}</h2><div class="history-list">${entries.map((entry) => { const item = allProducts.find((product) => product.id === entry.itemId); return item ? `<article class="history-card"><button type="button" data-action="select-product" data-id="${item.id}" style="border:0;background:transparent;padding:0;text-align:left;color:inherit"><strong class="line-title">${escapeHtml(item.model)}</strong><small class="line-subtitle">${escapeHtml(selectedConfiguration(item))} · ${timeLabel(entry.createdAt)}</small><span class="mode-tag">${entry.mode === "education" ? "教育优惠" : "Business Purchase"}</span></button><strong class="line-price">${money(entry.price)}</strong><div class="history-actions"><button type="button" data-action="toggle-history" data-id="${entry.id}" data-key="favorite">${entry.favorite ? "已收藏" : "收藏"}</button><button type="button" data-action="toggle-history" data-id="${entry.id}" data-key="pinned">${entry.pinned ? "已置顶" : "置顶"}</button><button type="button" data-action="delete-history" data-id="${entry.id}">删除</button></div></article>` : ""; }).join("")}</div></section>`; }).join("") : `<div class="empty-state"><div><h2>还没有报价历史</h2><p>完成一次报价展示后，它会安全地保存在这台 iPhone 上。</p><button class="primary-button" style="margin-top:18px" type="button" data-action="view" data-view="products">浏览产品</button></div></div>`}</div></section>`;
+    return `<section class="screen"><div class="screen-content"><header class="app-topbar"><div><p class="eyebrow">EDU Quote</p><h1 class="app-title">历史</h1></div>${history.length ? `<button class="text-button" type="button" data-action="clear-history">清除</button>` : ""}</header>${history.length ? groups.map((label) => { const entries = history.filter((entry) => dateLabel(entry.createdAt) === label); if (!entries.length) return ""; return `<section class="history-group"><h2>${label}</h2><div class="history-list">${entries.map((entry) => { const item = allProducts.find((product) => product.id === entry.itemId); return item ? `<article class="history-card"><button class="history-card-main" type="button" data-action="select-product" data-id="${item.id}"><span class="history-entry-copy"><strong class="line-title">${escapeHtml(item.model)}</strong><small class="line-subtitle">${escapeHtml(selectedConfiguration(item))}</small></span><span class="history-entry-price"><strong>${money(entry.price)}</strong><small>${timeLabel(entry.createdAt)}</small></span></button><div class="history-actions"><span class="mode-tag">${entry.mode === "education" ? "教育优惠" : "Business Purchase"}</span><button type="button" data-action="toggle-history" data-id="${entry.id}" data-key="favorite">${entry.favorite ? "已收藏" : "收藏"}</button><button type="button" data-action="toggle-history" data-id="${entry.id}" data-key="pinned">${entry.pinned ? "已置顶" : "置顶"}</button><button class="history-delete" type="button" data-action="delete-history" data-id="${entry.id}">删除</button></div></article>` : ""; }).join("")}</div></section>`; }).join("") : `<div class="empty-state"><div><h2>还没有报价历史</h2><p>完成一次报价展示后，它会安全地保存在这台 iPhone 上。</p><button class="primary-button" style="margin-top:18px" type="button" data-action="view" data-view="products">浏览产品</button></div></div>`}</div></section>`;
   }
 
   function savedTotal(quote) {
@@ -1261,7 +1262,7 @@ render();
   function renderPresentation() {
     const entries = quoteEntries();
     const summary = quotePriceSummary();
-    return `<section class="presentation" role="dialog" aria-modal="true" aria-label="报价展示"><header><h1>EDU Quote</h1><button class="close-button" type="button" data-action="close-present">退出</button></header><div><section class="presentation-product"><p>${entries.reduce((count, entry) => count + entry.quantity, 0)} 件产品</p><h2>报价单</h2><p>已选设备与配件</p></section><section class="presentation-price"><span>${summary.finalLabel}</span><strong>${money(summary.finalPrice)}</strong><p>${summary.note}</p></section><dl class="presentation-summary" aria-label="价格汇总"><div><dt>产品原价</dt><dd>${money(summary.originalPrice)}</dd></div><div><dt>${summary.adjustmentLabel}</dt><dd>−${money(summary.adjustmentPrice)}</dd></div><div><dt>${summary.finalLabel}</dt><dd>${money(summary.finalPrice)}</dd></div></dl><div class="presentation-details">${entries.map((entry) => `<div><span>${escapeHtml(entry.item.model)}${entry.quantity > 1 ? ` × ${entry.quantity}` : ""}</span><strong>${money(quoteEstimate(entry.item).total * entry.quantity)}</strong></div>`).join("")}</div></div><div class="presentation-actions"><button type="button" data-action="share">分享报价</button></div></section>`;
+    return `<section class="presentation" role="dialog" aria-modal="true" aria-label="报价展示"><header><h1>EDU Quote</h1></header><div><section class="presentation-product"><p>${entries.reduce((count, entry) => count + entry.quantity, 0)} 件产品</p><h2>报价单</h2><p>已选设备与配件</p></section><section class="presentation-price"><span>${summary.finalLabel}</span><strong>${money(summary.finalPrice)}</strong><p>${summary.note}</p></section><dl class="presentation-summary" aria-label="价格汇总"><div><dt>产品原价</dt><dd>${money(summary.originalPrice)}</dd></div><div><dt>${summary.adjustmentLabel}</dt><dd>−${money(summary.adjustmentPrice)}</dd></div><div><dt>${summary.finalLabel}</dt><dd>${money(summary.finalPrice)}</dd></div></dl><div class="presentation-details">${entries.map((entry) => `<div><span>${escapeHtml(entry.item.model)}${entry.quantity > 1 ? ` × ${entry.quantity}` : ""}</span><strong>${money(quoteEstimate(entry.item).total * entry.quantity)}</strong></div>`).join("")}</div></div><div class="presentation-actions"><button type="button" data-action="close-present">退出</button></div></section>`;
   }
 
   function render() {
@@ -1302,18 +1303,6 @@ render();
     render();
   }
 
-  async function shareQuote() {
-    const label = state.mode === "education" ? "教育优惠合计" : "预计最终成本";
-    const text = `${quoteEntries().map((entry) => `${entry.item.model}${entry.quantity > 1 ? ` × ${entry.quantity}` : ""} · ${money(quoteEstimate(entry.item).total * entry.quantity)}`).join("\n")}\n${label} ${money(quoteTotal())}`;
-    try {
-      if (navigator.share) await navigator.share({ title: "EDU Quote", text });
-      else if (navigator.clipboard) await navigator.clipboard.writeText(text);
-      notify("报价已复制");
-    } catch {
-      // The user may cancel the native share sheet; this should stay quiet.
-    }
-  }
-
   root.addEventListener("click", (event) => {
     // Safari can report a text node as the click target. Normalize it to an
     // element before delegating actions so product cards and search results
@@ -1337,7 +1326,6 @@ render();
     if (action === "remove-draft") { state.draft = state.draft.filter((entry) => entry.itemId !== target.dataset.id); render(); }
     if (action === "present") { quoteEntries().forEach((entry) => addHistory(entry.item)); state.sheet = null; state.presenting = true; render(); }
     if (action === "close-present") { state.presenting = false; render(); }
-    if (action === "share") shareQuote();
     if (action === "save-quote") createSavedQuote(root.querySelector("#quote-name")?.value.trim(), root.querySelector("#quote-note")?.value.trim());
     if (action === "open-saved") { const quote = saved.find((entry) => entry.id === target.dataset.id); if (quote) { state.draft = clone(quote.items); const first = quote.items[0]; if (first) state.selectedId = first.itemId; state.view = "config"; state.searchOpen = false; render(); } }
     if (action === "duplicate-saved") { const quote = saved.find((entry) => entry.id === target.dataset.id); if (quote) { saved.unshift({ ...clone(quote), id: window.crypto?.randomUUID?.() || `${Date.now()}`, name: `${quote.name} 副本`, updatedAt: Date.now() }); persist(); notify("已复制报价"); } }
