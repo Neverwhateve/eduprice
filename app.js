@@ -1132,7 +1132,7 @@ render();
     const recent = history.slice(0, 3);
     const cards = familyOrder.filter((family) => familyProducts(family).length);
     return `<section class="screen"><div class="screen-content">
-      <header class="app-topbar"><div><p class="eyebrow">EDU Quote</p><h1 class="app-title">产品</h1></div><button class="icon-button" type="button" data-action="search" aria-label="搜索产品与报价">⌕</button></header>
+      <header class="app-topbar"><div><p class="eyebrow">EDU Quote</p><h1 class="app-title">产品</h1></div></header>
       ${state.searchOpen ? renderInlineSearch() : `<button class="search-trigger" type="button" data-action="search"><span>搜索产品、配置或报价</span><span>⌘K</span></button>`}
       ${recent.length ? `<section class="section"><div class="section-heading"><h2>最近报价</h2><button class="section-action" type="button" data-action="view" data-view="history">查看全部</button></div><div class="recent-list">${recent.map((entry) => {
         const item = allProducts.find((product) => product.id === entry.itemId);
