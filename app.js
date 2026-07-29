@@ -1163,11 +1163,21 @@ render();
     return `<div class="sheet-layer" role="dialog" aria-modal="true" aria-labelledby="save-sheet-title"><div class="sheet-backdrop" data-action="close-sheet"></div><section class="sheet"><div class="sheet-handle"></div><header class="sheet-header"><h2 id="save-sheet-title">保存报价</h2><button class="close-button" type="button" data-action="close-sheet">取消</button></header><div class="quote-result"><span>教育优惠合计</span><strong>${money(draftTotal() || currentItem().eduPrice)}</strong><p>${state.draft.length || 1} 件产品</p></div><div class="field"><label for="quote-name">报价名称</label><input id="quote-name" type="text" value="${escapeHtml(`${currentItem().model} 报价`)}" maxlength="60" /></div><div class="field"><label for="quote-note">备注（可选）</label><textarea id="quote-note" maxlength="240" placeholder="例如：王女士 · 设计专业"></textarea></div><button class="wide-button" type="button" data-action="save-quote">保存报价</button></section></div>`;
   }
 
-  function renderInlineSearch() {
+  function renderSearchResults() {
     const needle = state.search.trim().toLocaleLowerCase();
     const productResults = needle ? allProducts.filter((item) => [item.model, selectedConfiguration(item), familyOf(item)].join(" ").toLocaleLowerCase().includes(needle)).slice(0, 8) : [];
     const quoteResults = needle ? saved.filter((quote) => `${quote.name} ${quote.note}`.toLocaleLowerCase().includes(needle)).slice(0, 4) : [];
-    return `<section class="inline-search" aria-label="搜索"><div class="search-input-wrap"><span aria-hidden="true">⌕</span><input id="global-search" type="search" value="${escapeHtml(state.search)}" placeholder="搜索产品、配置或报价" autocomplete="off" /><button class="text-button" type="button" data-action="close-search">取消</button></div>${needle ? `<div class="search-results">${productResults.map((item) => `<button class="search-result" type="button" data-action="select-product" data-id="${item.id}"><span><strong class="line-title">${escapeHtml(item.model)}</strong><small class="line-subtitle">${escapeHtml(selectedConfiguration(item))}</small></span><strong>${money(item.eduPrice)}</strong></button>`).join("")}${quoteResults.map((quote) => `<button class="search-result" type="button" data-action="open-saved" data-id="${quote.id}"><span><strong class="line-title">${escapeHtml(quote.name)}</strong><small class="line-subtitle">已存报价</small></span><strong>打开</strong></button>`).join("")}${!productResults.length && !quoteResults.length ? `<p class="search-empty">没有找到结果</p>` : ""}</div>` : ""}</section>`;
+    if (!needle) return "";
+    return `<div class="search-results">${productResults.map((item) => `<button class="search-result" type="button" data-action="select-product" data-id="${item.id}"><span><strong class="line-title">${escapeHtml(item.model)}</strong><small class="line-subtitle">${escapeHtml(selectedConfiguration(item))}</small></span><strong>${money(item.eduPrice)}</strong></button>`).join("")}${quoteResults.map((quote) => `<button class="search-result" type="button" data-action="open-saved" data-id="${quote.id}"><span><strong class="line-title">${escapeHtml(quote.name)}</strong><small class="line-subtitle">已存报价</small></span><strong>打开</strong></button>`).join("")}${!productResults.length && !quoteResults.length ? `<p class="search-empty">没有找到结果</p>` : ""}</div>`;
+  }
+
+  function renderInlineSearch() {
+    return `<section class="inline-search" aria-label="搜索"><div class="search-input-wrap"><span aria-hidden="true">⌕</span><input id="global-search" type="search" value="${escapeHtml(state.search)}" placeholder="搜索产品、配置或报价" autocomplete="off" /><button class="text-button" type="button" data-action="close-search">取消</button></div><div id="search-results">${renderSearchResults()}</div></section>`;
+  }
+
+  function updateSearchResults() {
+    const results = root.querySelector("#search-results");
+    if (results) results.innerHTML = renderSearchResults();
   }
 
   function renderPresentation() {
@@ -1247,7 +1257,7 @@ render();
   });
 
   root.addEventListener("input", (event) => {
-    if (event.target.id === "global-search") { state.search = event.target.value; render(); }
+    if (event.target.id === "global-search") { state.search = event.target.value; updateSearchResults(); }
   });
 
   window.addEventListener("keydown", (event) => {
