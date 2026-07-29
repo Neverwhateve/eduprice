@@ -1063,6 +1063,37 @@ render();
     return quoteEntries().reduce((total, entry) => total + quoteEstimate(entry.item).total * entry.quantity, 0);
   }
 
+  function quotePriceSummary() {
+    const entries = quoteEntries();
+    const originalPrice = entries.reduce((total, entry) => total + entry.item.officialPrice * entry.quantity, 0);
+    const finalPrice = quoteTotal();
+
+    if (state.mode === "education") {
+      return {
+        originalPrice,
+        adjustmentLabel: "教育优惠节省",
+        adjustmentPrice: Math.max(0, originalPrice - finalPrice),
+        finalLabel: "教育优惠后价格",
+        finalPrice,
+        note: "教育优惠价格已按所选产品合计",
+      };
+    }
+
+    const vatDeduction = entries.reduce((total, entry) => {
+      const estimate = utils?.calculateTaxEstimate?.({ taxInclusivePrice: entry.item.officialPrice, vatRate: 13, incomeTaxRate: 5, canDeductVat: true });
+      return total + (estimate?.deductibleVat || 0) * entry.quantity;
+    }, 0);
+    const incomeTaxSaving = Math.max(0, originalPrice - vatDeduction - finalPrice);
+    return {
+      originalPrice,
+      adjustmentLabel: "增值税可抵扣",
+      adjustmentPrice: vatDeduction,
+      finalLabel: "抵扣后预计成本",
+      finalPrice,
+      note: incomeTaxSaving ? `已含预计所得税节省 ${money(incomeTaxSaving)}` : "按可抵扣增值税估算",
+    };
+  }
+
   function createSavedQuote(name, note) {
     const items = state.draft.length ? state.draft : [{ itemId: currentItem().id, quantity: 1 }];
     saved.unshift({ id: window.crypto?.randomUUID?.() || `${Date.now()}`, name: name || `${currentItem().model} 报价`, note: note || "", items: clone(items), updatedAt: Date.now() });
@@ -1229,8 +1260,8 @@ render();
 
   function renderPresentation() {
     const entries = quoteEntries();
-    const label = state.mode === "education" ? "教育优惠合计" : "预计最终成本";
-    return `<section class="presentation" role="dialog" aria-modal="true" aria-label="报价展示"><header><h1>EDU Quote</h1><button class="close-button" type="button" data-action="close-present">退出</button></header><div><section class="presentation-product"><p>${quoteItemCount()} 件产品</p><h2>报价单</h2><p>已选设备与配件</p></section><section class="presentation-price"><span>${label}</span><strong>${money(quoteTotal())}</strong></section><div class="presentation-details">${entries.map((entry) => `<div><span>${escapeHtml(entry.item.model)}${entry.quantity > 1 ? ` × ${entry.quantity}` : ""}</span><strong>${money(quoteEstimate(entry.item).total * entry.quantity)}</strong></div>`).join("")}</div></div><div class="presentation-actions"><button type="button" data-action="share">分享报价</button></div></section>`;
+    const summary = quotePriceSummary();
+    return `<section class="presentation" role="dialog" aria-modal="true" aria-label="报价展示"><header><h1>EDU Quote</h1><button class="close-button" type="button" data-action="close-present">退出</button></header><div><section class="presentation-product"><p>${entries.reduce((count, entry) => count + entry.quantity, 0)} 件产品</p><h2>报价单</h2><p>已选设备与配件</p></section><section class="presentation-price"><span>${summary.finalLabel}</span><strong>${money(summary.finalPrice)}</strong><p>${summary.note}</p></section><dl class="presentation-summary" aria-label="价格汇总"><div><dt>产品原价</dt><dd>${money(summary.originalPrice)}</dd></div><div><dt>${summary.adjustmentLabel}</dt><dd>−${money(summary.adjustmentPrice)}</dd></div><div><dt>${summary.finalLabel}</dt><dd>${money(summary.finalPrice)}</dd></div></dl><div class="presentation-details">${entries.map((entry) => `<div><span>${escapeHtml(entry.item.model)}${entry.quantity > 1 ? ` × ${entry.quantity}` : ""}</span><strong>${money(quoteEstimate(entry.item).total * entry.quantity)}</strong></div>`).join("")}</div></div><div class="presentation-actions"><button type="button" data-action="share">分享报价</button></div></section>`;
   }
 
   function render() {

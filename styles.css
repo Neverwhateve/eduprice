@@ -192,6 +192,13 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px
 .presentation-price { margin: 38px 0; }
 .presentation-price span { color: var(--muted); font-size: 16px; }
 .presentation-price strong { display: block; margin-top: 8px; color: var(--blue); font-size: clamp(50px, 17vw, 78px); letter-spacing: -0.08em; line-height: .9; font-variant-numeric: tabular-nums; }
+.presentation-price p { margin: 10px 0 0; color: var(--muted); font-size: 13px; }
+.presentation-summary { display: grid; margin: 0 0 30px; border-top: 1px solid var(--line); }
+.presentation-summary div { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--line); padding: 13px 0; }
+.presentation-summary dt { color: var(--muted); font-size: 15px; }
+.presentation-summary dd { margin: 0; color: var(--ink); font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.presentation-summary div:nth-child(2) dd { color: var(--green); }
+.presentation-summary div:last-child dt, .presentation-summary div:last-child dd { color: var(--blue); font-weight: 700; }
 .presentation-details { display: grid; gap: 11px; }
 .presentation-details div { display: flex; justify-content: space-between; color: var(--muted); font-size: 15px; }
 .presentation-details strong { color: var(--ink); font-variant-numeric: tabular-nums; }
