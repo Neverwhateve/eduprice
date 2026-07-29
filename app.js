@@ -923,6 +923,7 @@ render();
   }
 
   function familyOf(item) {
+    if (item.id?.startsWith("配件-")) return "Accessories";
     if (item.model.includes("Macbook Air")) return "MacBook Air";
     if (item.model.includes("Macbook Pro")) return "MacBook Pro";
     if (item.model.includes("iPad Air")) return "iPad Air";
