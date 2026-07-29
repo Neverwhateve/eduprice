@@ -3,7 +3,7 @@ import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
 const outputDirectory = "dist";
-const fingerprintedFiles = ["styles.css", "tax-utils.js", "app.js", "tax-calculator.js", "pwa.js", "mac-guide.css", "mac-guide-data.js", "mac-guide.js"];
+const fingerprintedFiles = ["styles.css", "tax-utils.js", "app.js", "pwa.js", "mac-guide.css", "mac-guide-data.js", "mac-guide.js"];
 const copiedFiles = ["manifest.webmanifest"];
 const pageFiles = ["index.html", "mac-guide.html"];
 
@@ -49,7 +49,7 @@ await writeFile(join(outputDirectory, "asset-manifest.json"), `${JSON.stringify(
 for (const [pagePath, html] of Object.entries(pages)) {
   for (const [sourcePath, outputPath] of Object.entries(manifest)) {
     if (html.includes(sourcePath)) throw new Error(`构建后的 ${pagePath} 仍引用 ${sourcePath}`);
-    if (pagePath === "index.html" && ["styles.css", "tax-utils.js", "app.js", "tax-calculator.js", "pwa.js"].includes(sourcePath) && !html.includes(outputPath)) throw new Error(`构建后的 ${pagePath} 未引用 ${outputPath}`);
+    if (pagePath === "index.html" && ["styles.css", "tax-utils.js", "app.js", "pwa.js"].includes(sourcePath) && !html.includes(outputPath)) throw new Error(`构建后的 ${pagePath} 未引用 ${outputPath}`);
     if (pagePath === "mac-guide.html" && ["mac-guide.css", "mac-guide-data.js", "mac-guide.js"].includes(sourcePath) && !html.includes(outputPath)) throw new Error(`构建后的 ${pagePath} 未引用 ${outputPath}`);
   }
 }

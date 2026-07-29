@@ -5,7 +5,6 @@ const sourceFiles = [
   "styles.css",
   "app.js",
   "tax-utils.js",
-  "tax-calculator.js",
   "pwa.js",
   "sw.js",
   "manifest.webmanifest",
@@ -28,34 +27,30 @@ for (const file of sourceFiles) {
 }
 
 const html = contents.get("index.html") || "";
-const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]);
-const duplicates = ids.filter((id, index) => ids.indexOf(id) !== index);
-if (duplicates.length) failures.push(`index.html 存在重复 id: ${[...new Set(duplicates)].join(", ")}`);
+const app = contents.get("app.js") || "";
+const css = contents.get("styles.css") || "";
+const pwa = contents.get("pwa.js") || "";
 
-for (const requiredAsset of ["styles.css", "tax-utils.js", "app.js", "tax-calculator.js", "pwa.js", "manifest.webmanifest"]) {
+for (const requiredAsset of ["styles.css", "tax-utils.js", "app.js", "pwa.js", "manifest.webmanifest"]) {
   if (!html.includes(requiredAsset)) failures.push(`index.html 未引用 ${requiredAsset}`);
 }
 
-const calculator = contents.get("tax-calculator.js") || "";
-for (const selector of calculator.matchAll(/querySelector\("#([^"]+)"\)/g)) {
-  if (!ids.includes(selector[1])) failures.push(`tax-calculator.js 引用了不存在的 #${selector[1]}`);
-}
-
-if (!html.includes("不构成税务、财务或法律建议")) failures.push("缺少税务免责声明");
-if (!html.includes("不与教育优惠叠加")) failures.push("缺少企业抵税与教育优惠互斥说明");
-if (!html.includes("增票抵扣后预计成本")) failures.push("缺少增票抵扣后的预计成本标题");
-if (html.includes("教育优惠价抵税后预计成本")) failures.push("企业抵税结果不应使用教育优惠文案");
-if (!html.includes('id="calculate-cart-tax"')) failures.push("设备组合缺少企业抵税入口");
-if (!calculator.includes("eduprice:carttaxrequest")) failures.push("企业抵税计算器缺少组合金额接入逻辑");
-if (!html.includes("仅支持整数金额")) failures.push("企业抵税金额输入缺少整数限制说明");
-if (html.includes('inputmode="decimal"')) failures.push("计算输入不应允许小数键盘");
-if (html.includes('data-price-source="edu"')) failures.push("企业抵税金额来源不应包含教育优惠价");
-if (html.includes("custom-vat-rate") || html.includes("vat-rate-options")) failures.push("企业抵税不应提供增值税税率切换");
-if (!html.includes('aria-label="固定增值税税率 13%"')) failures.push("企业抵税缺少固定 13% 增值税税率说明");
+if (!html.includes("EDU Quote")) failures.push("应用标题未更新为 EDU Quote");
+if (!html.includes('id="app"')) failures.push("缺少应用根节点");
+if (!app.includes("localStorage")) failures.push("缺少本地报价和历史持久化");
+if (!app.includes("Business Purchase")) failures.push("缺少 Business Purchase 报价模式");
+if (!app.includes("Present Quote") && !app.includes("展示报价")) failures.push("缺少报价展示模式");
+if (!app.includes("saved")) failures.push("缺少已存报价实现");
+if (!app.includes("event.key.toLowerCase() === \"k\"")) failures.push("缺少全局搜索快捷键");
+if (!app.includes("不构成税务、财务或法律建议")) failures.push("缺少 Business Purchase 免责声明");
+if (!css.includes("prefers-reduced-motion")) failures.push("缺少减少动态支持");
+if (!css.includes("data-theme=\"dark\"")) failures.push("缺少深色模式支持");
+if (!css.includes("safe-area-inset-bottom")) failures.push("缺少 iPhone 安全区支持");
+if (pwa.includes("window.location.reload")) failures.push("PWA 更新不应自动打断报价");
 
 if (failures.length) {
   console.error(failures.join("\n"));
   process.exit(1);
 }
 
-console.log(`静态检查通过：${sourceFiles.length} 个源文件，${ids.length} 个唯一界面标识。`);
+console.log(`静态检查通过：${sourceFiles.length} 个移动端报价源文件。`);

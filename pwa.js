@@ -6,30 +6,18 @@
   window.addEventListener("load", () => {
     const toast = document.querySelector("#update-toast");
     const toastText = document.querySelector("#update-toast-text");
-    let refreshing = false;
-
     const showUpdateToast = (text) => {
       if (!toast || !toastText) return;
       toastText.textContent = text;
       toast.hidden = false;
     };
 
-    navigator.serviceWorker.addEventListener("controllerchange", () => {
-      if (refreshing) return;
-      refreshing = true;
-      showUpdateToast("新版已缓存，正在刷新...");
-      window.setTimeout(() => window.location.reload(), 600);
-    });
-
     navigator.serviceWorker
       .register("sw.js", { updateViaCache: "none" })
       .then((registration) => {
         const checkForUpdates = () => registration.update().catch(() => {});
 
-        if (registration.waiting && navigator.serviceWorker.controller) {
-          showUpdateToast("新版已准备好，正在更新...");
-          registration.waiting.postMessage({ type: "SKIP_WAITING" });
-        }
+        if (registration.waiting && navigator.serviceWorker.controller) showUpdateToast("新版本已准备好，下次打开时将自动使用。");
 
         registration.addEventListener("updatefound", () => {
           const worker = registration.installing;
@@ -37,9 +25,7 @@
           if (navigator.serviceWorker.controller) showUpdateToast("发现新版，正在更新离线缓存...");
 
           worker.addEventListener("statechange", () => {
-            if (worker.state === "installed" && navigator.serviceWorker.controller) {
-              worker.postMessage({ type: "SKIP_WAITING" });
-            }
+            if (worker.state === "installed" && navigator.serviceWorker.controller) showUpdateToast("新版本已准备好，下次打开时将自动使用。");
           });
         });
 

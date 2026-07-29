@@ -1,16 +1,11 @@
-const CACHE_NAME = "edu-price-v9";
+const CACHE_NAME = "edu-quote-v1";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./styles.css",
   "./tax-utils.js",
   "./app.js",
-  "./tax-calculator.js",
   "./pwa.js",
-  "./mac-guide.html",
-  "./mac-guide.css",
-  "./mac-guide-data.js",
-  "./mac-guide.js",
   "./manifest.webmanifest",
   "./assets/apple-touch-icon.png",
   "./assets/icon-192.png",
