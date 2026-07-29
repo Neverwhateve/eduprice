@@ -931,6 +931,10 @@ render();
     return "Accessories";
   }
 
+  function accessoryType(item) {
+    return item.model.includes("Pencil") ? "Apple Pencil" : "键盘";
+  }
+
   function familyClass(family) {
     if (family.includes("MacBook")) return "laptop";
     if (family.includes("iPad")) return "tablet";
