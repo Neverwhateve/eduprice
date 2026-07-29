@@ -66,10 +66,10 @@ const ipadProducts = [
 ];
 
 const accessoryProducts = [
-  { model: "Apple Pencil （第一代）", officialPrice: 799, eduPrice: 709 },
-  { model: "Apple Pencil （第二代）", officialPrice: 999, eduPrice: 899 },
   { model: "Apple Pencil Pro", officialPrice: 999, eduPrice: 899 },
   { model: "Apple Pencil （USB-C）", officialPrice: 649, eduPrice: 569 },
+  { model: "Apple Pencil （第二代）", officialPrice: 999, eduPrice: 899 },
+  { model: "Apple Pencil （第一代）", officialPrice: 799, eduPrice: 709 },
   { model: "妙控键盘（适用于 11 英寸 iPad Air）", officialPrice: 2199, eduPrice: 1999 },
   { model: "妙控键盘（适用于 13 英寸 iPad Air）", officialPrice: 2399, eduPrice: 2199 },
   { model: "妙控键盘（适用于 11 英寸 iPad Pro）", officialPrice: 2399, eduPrice: 2199 },
