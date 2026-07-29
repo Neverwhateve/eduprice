@@ -17,6 +17,7 @@
   --radius: 16px;
   --radius-lg: 20px;
   --safe-bottom: max(18px, env(safe-area-inset-bottom));
+  --tabbar-bottom: max(8px, env(safe-area-inset-bottom));
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif;
 }
 
@@ -79,7 +80,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px
 .line-subtitle { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.35; }
 .line-price { color: var(--ink); font-size: 15px; font-weight: 650; font-variant-numeric: tabular-nums; }
 
-.tabbar { position: fixed; z-index: 10; right: 0; bottom: 0; left: 0; display: flex; height: calc(64px + var(--safe-bottom)); align-items: flex-start; justify-content: center; border-top: 1px solid rgba(210,210,215,.8); background: color-mix(in srgb, var(--bg) 90%, transparent); padding: 7px max(14px, env(safe-area-inset-right)) var(--safe-bottom) max(14px, env(safe-area-inset-left)); backdrop-filter: blur(18px); }
+.tabbar { position: fixed; z-index: 10; right: 0; bottom: 0; left: 0; display: flex; height: calc(64px + var(--tabbar-bottom)); align-items: flex-start; justify-content: center; border-top: 1px solid rgba(210,210,215,.8); background: color-mix(in srgb, var(--bg) 90%, transparent); padding: 7px max(14px, env(safe-area-inset-right)) var(--tabbar-bottom) max(14px, env(safe-area-inset-left)); backdrop-filter: blur(18px); }
 .tabbar-inner { display: grid; width: min(100%, 620px); grid-template-columns: repeat(4, 1fr); }
 .tab-button { display: grid; min-height: 50px; place-items: center; border: 0; border-radius: 10px; background: transparent; color: var(--muted); padding: 0 4px; font-size: 11px; font-weight: 600; }
 .tab-button.is-active { color: var(--blue); }

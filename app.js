@@ -1073,7 +1073,7 @@ render();
         return item ? `<button class="recent-card" type="button" data-action="select-product" data-id="${item.id}"><span><strong class="line-title">${escapeHtml(item.model)}</strong><small class="line-subtitle">${escapeHtml(selectedConfiguration(item))}</small></span><strong class="line-price">${money(entry.price)}</strong></button>` : "";
       }).join("")}</div></section>` : ""}
       <section class="section"><div class="section-heading"><h2>选择产品</h2><span class="eyebrow">教育优惠</span></div>
-      <div class="product-grid">${cards.map((family) => { const items = familyProducts(family); const start = Math.min(...items.map((item) => item.eduPrice)); return `<button class="product-card" type="button" data-action="select-family" data-family="${family}">${productVisual(family)}<span><strong class="product-name">${family}</strong><small class="product-meta">${items.length} 种教育优惠配置</small><strong class="product-price">${money(start)} 起</strong></span></button>`; }).join("")}</div></section>
+      <div class="product-grid">${cards.map((family) => { const items = familyProducts(family); const start = Math.min(...items.map((item) => item.eduPrice)); const isAccessory = family === "Accessories"; const label = isAccessory ? "配件" : family; const action = isAccessory ? `data-action="select-product" data-id="${items[0].id}"` : `data-action="select-family" data-family="${family}"`; return `<button class="product-card" type="button" ${action}>${productVisual(family)}<span><strong class="product-name">${label}</strong><small class="product-meta">${items.length} 种教育优惠配置</small><strong class="product-price">${money(start)} 起</strong></span></button>`; }).join("")}</div></section>
     </div></section>`;
   }
 
@@ -1101,6 +1101,11 @@ render();
     return accessoryProducts.filter((product) => product.model.includes("妙控键盘") && product.model.includes(compatibleModel));
   }
 
+  function recommendedPencils(item) {
+    if (!/^\d+ 英寸 iPad (?:Air|Pro)/.test(item.model)) return [];
+    return accessoryProducts.filter((product) => product.model === "Apple Pencil Pro");
+  }
+
   function quoteEstimate(item) {
     if (state.mode === "education") return { total: item.eduPrice, label: "教育优惠价", supporting: `比官网价节省 ${money(item.saving)}`, details: [["官网价格", money(item.officialPrice)], ["节省", money(item.saving)]] };
     const estimate = utils?.calculateTaxEstimate?.({ taxInclusivePrice: item.officialPrice, vatRate: 13, incomeTaxRate: 5, canDeductVat: true });
@@ -1113,6 +1118,7 @@ render();
     const family = familyOf(item);
     const estimate = quoteEstimate(item);
     const keyboards = recommendedKeyboards(item);
+    const pencils = recommendedPencils(item);
     const itemInDraft = state.draft.some((entry) => entry.itemId === item.id);
     const hasDraft = state.draft.length > 0;
     const total = hasDraft ? quoteTotal() : estimate.total;
@@ -1122,6 +1128,7 @@ render();
       <section class="config-section"><div class="segmented" role="tablist" aria-label="报价模式"><button type="button" class="${state.mode === "education" ? "is-active" : ""}" data-action="mode" data-mode="education">教育优惠</button><button type="button" class="${state.mode === "business" ? "is-active" : ""}" data-action="mode" data-mode="business">Business Purchase</button></div></section>
       ${configGroups(item).map((group) => `<section class="config-section"><h2>${group.label}</h2><div class="chip-row">${group.values.map((value) => `<button class="chip ${(group.key === "accessoryType" ? accessoryType(item) : item[group.key]) === value ? "is-active" : ""}" type="button" data-action="config" data-key="${group.key}" data-value="${escapeHtml(value)}">${escapeHtml(value)}</button>`).join("")}</div></section>`).join("")}
       ${keyboards.length ? `<section class="config-section accessory-recommendation"><div class="section-heading"><div><h2>推荐键盘</h2><p>适配当前 ${escapeHtml(item.model)}</p></div></div>${keyboards.map((keyboard) => `<button class="recommendation-card" type="button" data-action="select-product" data-id="${keyboard.id}"><span><strong>${escapeHtml(keyboard.model)}</strong><small>教育优惠价 · 点按查看配置</small></span><strong>${money(keyboard.eduPrice)}</strong></button>`).join("")}</section>` : ""}
+      ${pencils.length ? `<section class="config-section accessory-recommendation"><div class="section-heading"><div><h2>推荐 Apple Pencil</h2><p>兼容当前 ${escapeHtml(item.model)}</p></div></div>${pencils.map((pencil) => `<button class="recommendation-card" type="button" data-action="select-product" data-id="${pencil.id}"><span><strong>${escapeHtml(pencil.model)}</strong><small>教育优惠价 · 点按查看配置</small></span><strong>${money(pencil.eduPrice)}</strong></button>`).join("")}</section>` : ""}
     </div><aside class="quote-summary" aria-label="当前报价"><div class="quote-summary-main"><button class="quote-summary-details" type="button" data-action="sheet" data-sheet="quote" aria-label="查看报价详情"><span>${label}</span><strong>${money(total)}</strong></button>${itemInDraft ? `<button class="primary-button" type="button" data-action="sheet" data-sheet="quote">查看报价</button>` : `<button class="primary-button" type="button" data-action="add-draft">加入报价</button>`}</div></aside></section>`;
   }
 
