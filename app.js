@@ -935,6 +935,18 @@ render();
     return item.model.includes("Pencil") ? "Apple Pencil" : "键盘";
   }
 
+  function keyboardFamily(item) {
+    if (item.model.includes("iPad Pro")) return "iPad Pro";
+    if (item.model.includes("iPad Air")) return "iPad Air";
+    return "iPad";
+  }
+
+  function configValue(item, key) {
+    if (key === "accessoryType") return accessoryType(item);
+    if (key === "keyboardFamily") return keyboardFamily(item);
+    return item[key];
+  }
+
   function familyClass(family) {
     if (family.includes("MacBook")) return "laptop";
     if (family.includes("iPad")) return "tablet";
@@ -1103,9 +1115,15 @@ render();
     const items = familyProducts(familyOf(item));
     if (familyOf(item) === "Accessories") {
       const type = accessoryType(item);
+      const typeItems = items.filter((entry) => accessoryType(entry) === type);
+      const groups = [{ key: "accessoryType", label: "配件类型", values: ["Apple Pencil", "键盘"] }];
+      if (type === "键盘") {
+        const families = ["iPad Pro", "iPad Air", "iPad"].filter((family) => typeItems.some((entry) => keyboardFamily(entry) === family));
+        groups.push({ key: "keyboardFamily", label: "适配 iPad", values: families });
+      }
+      groups.push({ key: "model", label: type === "Apple Pencil" ? "选择 Pencil" : "选择键盘", values: unique(typeItems.filter((entry) => type !== "键盘" || keyboardFamily(entry) === keyboardFamily(item)), "model") });
       return [
-        { key: "accessoryType", label: "配件类型", values: ["Apple Pencil", "键盘"] },
-        { key: "model", label: type === "Apple Pencil" ? "选择 Pencil" : "选择键盘", values: unique(items.filter((entry) => accessoryType(entry) === type), "model") },
+        ...groups,
       ];
     }
     const groups = [{ key: "model", label: "尺寸", values: unique(items, "model") }];
@@ -1155,7 +1173,7 @@ render();
     return `<section class="screen"><div class="screen-content config-content"><header class="app-topbar"><button class="back-button" type="button" data-action="view" data-view="products">‹ 产品</button></header>
       <section class="config-hero">${productVisual(family, true, item)}<div class="config-copy"><p class="eyebrow">${family}</p><h1>${escapeHtml(item.model)}</h1><p>${escapeHtml(selectedConfiguration(item))}</p></div></section>
       <section class="config-section"><div class="segmented" role="tablist" aria-label="报价模式"><button type="button" class="${state.mode === "education" ? "is-active" : ""}" data-action="mode" data-mode="education">教育优惠</button><button type="button" class="${state.mode === "business" ? "is-active" : ""}" data-action="mode" data-mode="business">Business Purchase</button></div></section>
-      ${configGroups(item).map((group) => `<section class="config-section"><h2>${group.label}</h2><div class="chip-row">${group.values.map((value) => `<button class="chip ${(group.key === "accessoryType" ? accessoryType(item) : item[group.key]) === value ? "is-active" : ""}" type="button" data-action="config" data-key="${group.key}" data-value="${escapeHtml(value)}">${escapeHtml(value)}</button>`).join("")}</div></section>`).join("")}
+      ${configGroups(item).map((group) => `<section class="config-section"><h2>${group.label}</h2><div class="chip-row">${group.values.map((value) => `<button class="chip ${configValue(item, group.key) === value ? "is-active" : ""}" type="button" data-action="config" data-key="${group.key}" data-value="${escapeHtml(value)}">${escapeHtml(value)}</button>`).join("")}</div></section>`).join("")}
       ${keyboards.length ? `<section class="config-section accessory-recommendation"><div class="section-heading"><div><h2>推荐键盘</h2><p>适配当前 ${escapeHtml(item.model)}</p></div></div>${renderRecommendationCards(keyboards)}</section>` : ""}
       ${pencils.length ? `<section class="config-section accessory-recommendation"><div class="section-heading"><div><h2>推荐 Apple Pencil</h2><p>兼容当前 ${escapeHtml(item.model)}</p></div></div>${renderRecommendationCards(pencils)}</section>` : ""}
     </div><aside class="quote-summary" aria-label="当前报价"><div class="quote-summary-main"><button class="quote-summary-details" type="button" data-action="sheet" data-sheet="quote" aria-label="查看报价详情"><span>${label}</span><strong>${money(total)}</strong></button>${itemInDraft ? `<button class="primary-button" type="button" data-action="sheet" data-sheet="quote">查看报价</button>` : `<button class="primary-button" type="button" data-action="add-draft">加入报价</button>`}</div></aside></section>`;
@@ -1233,8 +1251,17 @@ render();
     const item = currentItem();
     const candidates = familyProducts(familyOf(item));
     if (key === "accessoryType") {
-      const foundAccessory = candidates.find((candidate) => accessoryType(candidate) === value);
+      const matchingAccessories = candidates.filter((candidate) => accessoryType(candidate) === value);
+      const foundAccessory = value === "键盘"
+        ? matchingAccessories.find((candidate) => keyboardFamily(candidate) === "iPad Pro") || matchingAccessories[0]
+        : matchingAccessories[0];
       if (foundAccessory) state.selectedId = foundAccessory.id;
+      render();
+      return;
+    }
+    if (key === "keyboardFamily") {
+      const foundKeyboard = candidates.find((candidate) => accessoryType(candidate) === "键盘" && keyboardFamily(candidate) === value);
+      if (foundKeyboard) state.selectedId = foundKeyboard.id;
       render();
       return;
     }
