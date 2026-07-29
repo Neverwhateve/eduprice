@@ -49,10 +49,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px
 .inline-search .search-input-wrap { box-shadow: 0 1px 1px rgba(0,0,0,.03); }
 .inline-search .text-button { flex: 0 0 auto; }
 .search-empty { margin: 14px 0 0; color: var(--muted); font-size: 14px; }
-.family-filter { display: flex; overflow-x: auto; margin: 19px -18px -2px; padding: 0 18px 4px; gap: 8px; scrollbar-width: none; }
-.family-filter::-webkit-scrollbar { display: none; }
-.filter-chip, .chip { flex: 0 0 auto; min-height: 36px; border: 0; border-radius: 999px; background: var(--surface); color: var(--ink); padding: 0 14px; font-size: 14px; font-weight: 600; }
-.filter-chip.is-active, .chip.is-active { background: var(--ink); color: #fff; }
+.chip { flex: 0 0 auto; min-height: 36px; border: 0; border-radius: 999px; background: var(--surface); color: var(--ink); padding: 0 14px; font-size: 14px; font-weight: 600; }
+.chip.is-active { background: var(--ink); color: #fff; }
 
 .product-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .product-card { display: flex; min-height: 216px; overflow: hidden; border: 0; border-radius: var(--radius); background: var(--surface); color: var(--ink); padding: 14px; text-align: left; flex-direction: column; justify-content: space-between; box-shadow: 0 1px 1px rgba(0,0,0,.025); }
@@ -95,6 +93,12 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px
 .config-section h2 { margin: 0 0 11px; font-size: 15px; }
 .chip-row { display: flex; overflow-x: auto; margin: 0 -18px; padding: 0 18px 4px; gap: 8px; scrollbar-width: none; }
 .chip-row::-webkit-scrollbar { display: none; }
+.accessory-recommendation .section-heading { display: block; margin-bottom: 10px; }
+.accessory-recommendation .section-heading p { margin: -5px 0 0; color: var(--muted); font-size: 13px; }
+.recommendation-card { display: grid; width: 100%; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 14px; border: 0; border-radius: var(--radius); background: var(--surface); color: var(--ink); padding: 15px; text-align: left; }
+.recommendation-card strong { display: block; font-size: 15px; letter-spacing: -0.02em; }
+.recommendation-card small { display: block; margin-top: 5px; color: var(--muted); font-size: 12px; }
+.recommendation-card > strong { color: var(--blue); font-size: 15px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .config-content { padding-bottom: 118px; }
 .quote-summary { position: fixed; z-index: 8; right: 12px; bottom: calc(72px + var(--safe-bottom)); left: 12px; border: 1px solid rgba(255,255,255,.4); border-radius: 18px; background: color-mix(in srgb, var(--surface) 94%, transparent); box-shadow: 0 8px 20px rgba(0,0,0,.11); backdrop-filter: blur(22px); }
 .quote-summary-main { display: flex; min-height: 66px; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 11px 10px 15px; }

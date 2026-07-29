@@ -881,7 +881,6 @@ render();
 
   const state = {
     view: "products",
-    family: "All",
     selectedId: initialProduct.id,
     mode: "education",
     draft: [],
@@ -1043,7 +1042,7 @@ render();
 
   function renderProducts() {
     const recent = history.slice(0, 3);
-    const cards = familyOrder.filter((family) => familyProducts(family).length).filter((family) => state.family === "All" || state.family === family);
+    const cards = familyOrder.filter((family) => familyProducts(family).length);
     return `<section class="screen"><div class="screen-content">
       <header class="app-topbar"><div><p class="eyebrow">EDU Quote</p><h1 class="app-title">产品</h1></div><button class="icon-button" type="button" data-action="search" aria-label="搜索产品与报价">⌕</button></header>
       ${state.searchOpen ? renderInlineSearch() : `<button class="search-trigger" type="button" data-action="search"><span>搜索产品、配置或报价</span><span>⌘K</span></button>`}
@@ -1051,7 +1050,7 @@ render();
         const item = allProducts.find((product) => product.id === entry.itemId);
         return item ? `<button class="recent-card" type="button" data-action="select-product" data-id="${item.id}"><span><strong class="line-title">${escapeHtml(item.model)}</strong><small class="line-subtitle">${escapeHtml(selectedConfiguration(item))}</small></span><strong class="line-price">${money(entry.price)}</strong></button>` : "";
       }).join("")}</div></section>` : ""}
-      <section class="section"><div class="section-heading"><h2>选择产品</h2><span class="eyebrow">教育优惠</span></div><div class="family-filter" role="tablist" aria-label="产品分类">${["All", ...familyOrder].filter((family) => family === "All" || familyProducts(family).length).map((family) => `<button class="filter-chip ${state.family === family ? "is-active" : ""}" type="button" role="tab" aria-selected="${state.family === family}" data-action="family" data-family="${family}">${family === "All" ? "全部" : family}</button>`).join("")}</div>
+      <section class="section"><div class="section-heading"><h2>选择产品</h2><span class="eyebrow">教育优惠</span></div>
       <div class="product-grid">${cards.map((family) => { const items = familyProducts(family); const start = Math.min(...items.map((item) => item.eduPrice)); return `<button class="product-card" type="button" data-action="select-family" data-family="${family}">${productVisual(family)}<span><strong class="product-name">${family}</strong><small class="product-meta">${items.length} 种教育优惠配置</small><strong class="product-price">${money(start)} 起</strong></span></button>`; }).join("")}</div></section>
     </div></section>`;
   }
@@ -1067,6 +1066,12 @@ render();
     return groups.filter((group) => group.values.length > 1);
   }
 
+  function recommendedKeyboards(item) {
+    const compatibleModel = item.model.match(/(?:11|13) 英寸 iPad (?:Air|Pro)/)?.[0];
+    if (!compatibleModel) return [];
+    return accessoryProducts.filter((product) => product.model.includes("妙控键盘") && product.model.includes(compatibleModel));
+  }
+
   function quoteEstimate(item) {
     if (state.mode === "education") return { total: item.eduPrice, label: "教育优惠价", supporting: `比官网价节省 ${money(item.saving)}`, details: [["官网价格", money(item.officialPrice)], ["节省", money(item.saving)]] };
     const estimate = utils?.calculateTaxEstimate?.({ taxInclusivePrice: item.officialPrice, vatRate: 13, incomeTaxRate: 5, canDeductVat: true });
@@ -1078,10 +1083,12 @@ render();
     const item = currentItem();
     const family = familyOf(item);
     const estimate = quoteEstimate(item);
+    const keyboards = recommendedKeyboards(item);
     return `<section class="screen"><div class="screen-content config-content"><header class="app-topbar"><button class="back-button" type="button" data-action="view" data-view="products">‹ 产品</button></header>
       <section class="config-hero">${productVisual(family, true)}<div class="config-copy"><p class="eyebrow">${family}</p><h1>${escapeHtml(item.model)}</h1><p>${escapeHtml(selectedConfiguration(item))}</p></div></section>
       <section class="config-section"><div class="segmented" role="tablist" aria-label="报价模式"><button type="button" class="${state.mode === "education" ? "is-active" : ""}" data-action="mode" data-mode="education">教育优惠</button><button type="button" class="${state.mode === "business" ? "is-active" : ""}" data-action="mode" data-mode="business">Business Purchase</button></div></section>
       ${configGroups(item).map((group) => `<section class="config-section"><h2>${group.label}</h2><div class="chip-row">${group.values.map((value) => `<button class="chip ${item[group.key] === value ? "is-active" : ""}" type="button" data-action="config" data-key="${group.key}" data-value="${escapeHtml(value)}">${escapeHtml(value)}</button>`).join("")}</div></section>`).join("")}
+      ${keyboards.length ? `<section class="config-section accessory-recommendation"><div class="section-heading"><div><h2>推荐键盘</h2><p>适配当前 ${escapeHtml(item.model)}</p></div></div>${keyboards.map((keyboard) => `<button class="recommendation-card" type="button" data-action="select-product" data-id="${keyboard.id}"><span><strong>${escapeHtml(keyboard.model)}</strong><small>教育优惠价 · 点按查看配置</small></span><strong>${money(keyboard.eduPrice)}</strong></button>`).join("")}</section>` : ""}
     </div><aside class="quote-summary" aria-label="当前报价"><div class="quote-summary-main"><button class="quote-summary-details" type="button" data-action="sheet" data-sheet="quote" aria-label="查看报价详情"><span>${estimate.label}</span><strong>${money(estimate.total)}</strong></button><button class="primary-button" type="button" data-action="present">展示报价</button></div></aside></section>`;
   }
 
@@ -1169,7 +1176,6 @@ render();
     if (action === "view") { state.view = target.dataset.view; state.sheet = null; render(); }
     if (action === "search") { state.view = "products"; state.searchOpen = true; render(); }
     if (action === "close-search") { state.searchOpen = false; state.search = ""; render(); }
-    if (action === "family") { state.family = target.dataset.family; render(); }
     if (action === "select-family") { const item = familyProducts(target.dataset.family)[0]; if (item) selectProduct(item.id); }
     if (action === "select-product") selectProduct(target.dataset.id);
     if (action === "config") selectConfig(target.dataset.key, target.dataset.value);
