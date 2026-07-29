@@ -184,6 +184,26 @@
     });
   }
 
+  function calculateBusinessPurchaseEstimate(taxInclusivePrice) {
+    const priceCents = parseMoneyToCents(taxInclusivePrice);
+    const price = centsToAmount(priceCents);
+    const taxExclusivePrice = price / 1.13;
+    const deductibleVat = Math.round(taxExclusivePrice * 0.13);
+    const incomeTaxSaving = Math.round(taxExclusivePrice * 0.05);
+    const totalEstimatedSaving = deductibleVat + incomeTaxSaving;
+
+    return Object.freeze({
+      taxInclusivePrice: price,
+      taxExclusivePrice,
+      deductibleVat,
+      incomeTaxSaving,
+      totalEstimatedSaving,
+      estimatedNetCost: Math.max(0, price - totalEstimatedSaving),
+      vatRate: 13,
+      incomeTaxRate: 5,
+    });
+  }
+
   const api = Object.freeze({
     TAX_CONFIG,
     MAX_MONEY_INTEGER_DIGITS,
@@ -196,6 +216,7 @@
     formatCurrencyFromCents,
     canDeductVat,
     calculateTaxEstimate,
+    calculateBusinessPurchaseEstimate,
   });
 
   if (typeof module !== "undefined" && module.exports) module.exports = api;

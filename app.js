@@ -1079,18 +1079,19 @@ render();
       };
     }
 
-    const vatDeduction = entries.reduce((total, entry) => {
-      const estimate = utils?.calculateTaxEstimate?.({ taxInclusivePrice: entry.item.officialPrice, vatRate: 13, incomeTaxRate: 5, canDeductVat: true });
-      return total + (estimate?.deductibleVat || 0) * entry.quantity;
-    }, 0);
-    const incomeTaxSaving = Math.max(0, originalPrice - vatDeduction - finalPrice);
+    const businessSavings = entries.reduce((totals, entry) => {
+      const estimate = utils?.calculateBusinessPurchaseEstimate?.(entry.item.officialPrice);
+      totals.vatDeduction += (estimate?.deductibleVat || 0) * entry.quantity;
+      totals.incomeTaxSaving += (estimate?.incomeTaxSaving || 0) * entry.quantity;
+      return totals;
+    }, { vatDeduction: 0, incomeTaxSaving: 0 });
     return {
       originalPrice,
       adjustmentLabel: "增值税可抵扣",
-      adjustmentPrice: vatDeduction,
+      adjustmentPrice: businessSavings.vatDeduction,
       finalLabel: "抵扣后预计成本",
       finalPrice,
-      note: incomeTaxSaving ? `已含预计所得税节省 ${money(incomeTaxSaving)}` : "按可抵扣增值税估算",
+      note: businessSavings.incomeTaxSaving ? `已含预计所得税节省 ${money(businessSavings.incomeTaxSaving)}` : "按可抵扣增值税估算",
     };
   }
 
@@ -1187,9 +1188,9 @@ render();
 
   function quoteEstimate(item) {
     if (state.mode === "education") return { total: item.eduPrice, label: "教育优惠价", supporting: `比官网价节省 ${money(item.saving)}`, details: [["官网价格", money(item.officialPrice)], ["节省", money(item.saving)]] };
-    const estimate = utils?.calculateTaxEstimate?.({ taxInclusivePrice: item.officialPrice, vatRate: 13, incomeTaxRate: 5, canDeductVat: true });
+    const estimate = utils?.calculateBusinessPurchaseEstimate?.(item.officialPrice);
     if (!estimate) return { total: item.officialPrice, label: "预计成本", supporting: "企业采购估算", details: [] };
-    return { total: estimate.estimatedNetCost, label: "预计最终成本", supporting: `预计总节省 ${money(estimate.totalEstimatedSaving)}`, details: [["发票金额", money(item.officialPrice)], ["VAT", money(estimate.vatAmount)], ["所得税节省", money(estimate.incomeTaxSaving)], ["预计总节省", money(estimate.totalEstimatedSaving)]] };
+    return { total: estimate.estimatedNetCost, label: "预计最终成本", supporting: `预计节省 ${money(estimate.totalEstimatedSaving)}（增值税 ${money(estimate.deductibleVat)} + 所得税 ${money(estimate.incomeTaxSaving)}）`, details: [["发票金额", money(item.officialPrice)], ["预计增值税可抵扣", money(estimate.deductibleVat)], ["预计所得税节省", money(estimate.incomeTaxSaving)], ["预计总节省", money(estimate.totalEstimatedSaving)]] };
   }
 
   function renderConfig() {
@@ -1235,7 +1236,7 @@ render();
     const total = quoteTotal();
     const label = state.mode === "education" ? (hasDraft ? "教育优惠合计" : "教育优惠价") : "预计最终成本";
     const supporting = hasDraft ? `${quoteItemCount()} 件产品已加入报价` : "加入当前产品后，即可继续添加键盘或 Apple Pencil";
-    return `<div class="sheet-layer" role="dialog" aria-modal="true" aria-labelledby="quote-sheet-title"><div class="sheet-backdrop" data-action="close-sheet"></div><section class="sheet"><div class="sheet-handle"></div><header class="sheet-header"><h2 id="quote-sheet-title">当前报价</h2><button class="close-button" type="button" data-action="close-sheet">继续选择</button></header><div class="segmented" style="margin-top:18px"><button type="button" class="${state.mode === "education" ? "is-active" : ""}" data-action="mode" data-mode="education">教育优惠</button><button type="button" class="${state.mode === "business" ? "is-active" : ""}" data-action="mode" data-mode="business">Business Purchase</button></div><div class="quote-result"><span>${label}</span><strong>${money(total)}</strong><p>${supporting}</p></div><dl class="result-details quote-items">${entries.map((entry) => `<div><dt><strong>${escapeHtml(entry.item.model)}</strong><small>${escapeHtml(selectedConfiguration(entry.item))}${entry.quantity > 1 ? ` · ${entry.quantity} 件` : ""}</small></dt><dd><strong>${money(quoteEstimate(entry.item).total * entry.quantity)}</strong>${hasDraft ? `<button type="button" class="quote-item-remove" data-action="remove-draft" data-id="${entry.item.id}">移除</button>` : ""}</dd></div>`).join("")}</dl>${state.mode === "business" ? `<details class="disclosure"><summary>如何计算？</summary><p>以每件产品当前官方零售价为含税金额，按 13% 增值税与 5% 企业所得税率进行理论估算，并假设具备增值税抵扣资格。结果仅供参考，不构成税务、财务或法律建议。</p></details>` : ""}${hasDraft ? `<button class="wide-button" type="button" data-action="present">展示报价</button>` : `<button class="wide-button" type="button" data-action="add-draft">加入报价</button>`}</section></div>`;
+    return `<div class="sheet-layer" role="dialog" aria-modal="true" aria-labelledby="quote-sheet-title"><div class="sheet-backdrop" data-action="close-sheet"></div><section class="sheet"><div class="sheet-handle"></div><header class="sheet-header"><h2 id="quote-sheet-title">当前报价</h2><button class="close-button" type="button" data-action="close-sheet">继续选择</button></header><div class="segmented" style="margin-top:18px"><button type="button" class="${state.mode === "education" ? "is-active" : ""}" data-action="mode" data-mode="education">教育优惠</button><button type="button" class="${state.mode === "business" ? "is-active" : ""}" data-action="mode" data-mode="business">Business Purchase</button></div><div class="quote-result"><span>${label}</span><strong>${money(total)}</strong><p>${supporting}</p></div><dl class="result-details quote-items">${entries.map((entry) => `<div><dt><strong>${escapeHtml(entry.item.model)}</strong><small>${escapeHtml(selectedConfiguration(entry.item))}${entry.quantity > 1 ? ` · ${entry.quantity} 件` : ""}</small></dt><dd><strong>${money(quoteEstimate(entry.item).total * entry.quantity)}</strong>${hasDraft ? `<button type="button" class="quote-item-remove" data-action="remove-draft" data-id="${entry.item.id}">移除</button>` : ""}</dd></div>`).join("")}</dl>${state.mode === "business" ? `<details class="disclosure"><summary>如何计算？</summary><p>以每件产品的官方含税价除以 1.13 得出不含税金额；预计增值税可抵扣为该金额的 13%，预计所得税节省为该金额的 5%，两项分别按元四舍五入。仅适用于一般纳税人具备抵扣条件的理论估算，结果不构成税务、财务或法律建议。</p></details>` : ""}${hasDraft ? `<button class="wide-button" type="button" data-action="present">展示报价</button>` : `<button class="wide-button" type="button" data-action="add-draft">加入报价</button>`}</section></div>`;
   }
 
   function renderSaveSheet() {

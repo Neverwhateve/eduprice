@@ -4,6 +4,7 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const {
   TAX_CONFIG,
+  calculateBusinessPurchaseEstimate,
   calculateTaxEstimate,
   canDeductVat,
   formatCurrency,
@@ -37,6 +38,15 @@ test("13% VAT and 5% income tax with VAT deduction", () => {
   assert.equal(result.incomeTaxSaving, 500);
   assert.equal(result.totalEstimatedSaving, 1800);
   assert.equal(result.estimatedNetCost, 9500);
+});
+
+test("business quote follows the supplied 13% VAT and 5% income tax rounding", () => {
+  const result = calculateBusinessPurchaseEstimate(15899);
+
+  assert.equal(result.deductibleVat, 1829);
+  assert.equal(result.incomeTaxSaving, 703);
+  assert.equal(result.totalEstimatedSaving, 2532);
+  assert.equal(result.estimatedNetCost, 13367);
 });
 
 test("6% VAT and 5% income tax with VAT deduction", () => {
