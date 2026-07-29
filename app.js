@@ -1078,11 +1078,11 @@ render();
     const item = currentItem();
     const family = familyOf(item);
     const estimate = quoteEstimate(item);
-    return `<section class="screen"><div class="screen-content"><header class="app-topbar"><button class="back-button" type="button" data-action="view" data-view="products">‹ 产品</button></header>
+    return `<section class="screen"><div class="screen-content config-content"><header class="app-topbar"><button class="back-button" type="button" data-action="view" data-view="products">‹ 产品</button></header>
       <section class="config-hero">${productVisual(family, true)}<div class="config-copy"><p class="eyebrow">${family}</p><h1>${escapeHtml(item.model)}</h1><p>${escapeHtml(selectedConfiguration(item))}</p></div></section>
       <section class="config-section"><div class="segmented" role="tablist" aria-label="报价模式"><button type="button" class="${state.mode === "education" ? "is-active" : ""}" data-action="mode" data-mode="education">教育优惠</button><button type="button" class="${state.mode === "business" ? "is-active" : ""}" data-action="mode" data-mode="business">Business Purchase</button></div></section>
       ${configGroups(item).map((group) => `<section class="config-section"><h2>${group.label}</h2><div class="chip-row">${group.values.map((value) => `<button class="chip ${item[group.key] === value ? "is-active" : ""}" type="button" data-action="config" data-key="${group.key}" data-value="${escapeHtml(value)}">${escapeHtml(value)}</button>`).join("")}</div></section>`).join("")}
-    </div><aside class="quote-summary" aria-label="当前报价"><div class="quote-summary-main"><div><span>${estimate.label}</span><strong>${money(estimate.total)}</strong></div><button class="primary-button" type="button" data-action="present">展示报价</button></div><div class="summary-actions"><button type="button" data-action="add-draft">加入报价</button><button type="button" data-action="sheet" data-sheet="quote">查看详情</button></div></aside></section>`;
+    </div><aside class="quote-summary" aria-label="当前报价"><div class="quote-summary-main"><button class="quote-summary-details" type="button" data-action="sheet" data-sheet="quote" aria-label="查看报价详情"><span>${estimate.label}</span><strong>${money(estimate.total)}</strong></button><button class="primary-button" type="button" data-action="present">展示报价</button></div></aside></section>`;
   }
 
   function renderHistory() {
