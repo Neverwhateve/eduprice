@@ -126,6 +126,11 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px
 .result-details div { display: flex; justify-content: space-between; gap: 15px; border-bottom: 1px solid var(--line); padding: 12px 0; }
 .result-details dt { color: var(--muted); font-size: 14px; }
 .result-details dd { margin: 0; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+.quote-items dt { min-width: 0; }
+.quote-items dt strong { display: block; color: var(--ink); font-size: 14px; }
+.quote-items dt small { display: block; overflow: hidden; margin-top: 3px; text-overflow: ellipsis; white-space: nowrap; }
+.quote-items dd { display: grid; justify-items: end; gap: 5px; }
+.quote-item-remove { border: 0; background: transparent; color: var(--blue); padding: 0; font-size: 12px; font-weight: 600; }
 .disclosure { margin-top: 14px; border: 0; border-radius: var(--radius-sm); background: var(--surface-muted); color: var(--ink); padding: 14px; text-align: left; }
 .disclosure summary { color: var(--blue); font-size: 14px; font-weight: 600; cursor: pointer; }
 .disclosure p { margin: 11px 0 0; color: var(--muted); font-size: 13px; line-height: 1.55; }

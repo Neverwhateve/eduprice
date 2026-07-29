@@ -1001,8 +1001,11 @@ render();
 
   function addDraft(item = currentItem()) {
     const existing = state.draft.find((entry) => entry.itemId === item.id);
-    if (existing) existing.quantity += 1;
-    else state.draft.push({ itemId: item.id, quantity: 1 });
+    if (existing) {
+      notify("已在当前报价中");
+      return;
+    }
+    state.draft.push({ itemId: item.id, quantity: 1 });
     notify("已加入当前报价");
   }
 
@@ -1011,6 +1014,19 @@ render();
       const item = allProducts.find((product) => product.id === entry.itemId);
       return total + (item?.eduPrice || 0) * entry.quantity;
     }, 0);
+  }
+
+  function quoteEntries() {
+    const source = state.draft.length ? state.draft : [{ itemId: currentItem().id, quantity: 1 }];
+    return source.map((entry) => ({ ...entry, item: allProducts.find((product) => product.id === entry.itemId) })).filter((entry) => entry.item);
+  }
+
+  function quoteItemCount() {
+    return state.draft.reduce((count, entry) => count + entry.quantity, 0);
+  }
+
+  function quoteTotal() {
+    return quoteEntries().reduce((total, entry) => total + quoteEstimate(entry.item).total * entry.quantity, 0);
   }
 
   function createSavedQuote(name, note) {
@@ -1085,12 +1101,16 @@ render();
     const family = familyOf(item);
     const estimate = quoteEstimate(item);
     const keyboards = recommendedKeyboards(item);
+    const itemInDraft = state.draft.some((entry) => entry.itemId === item.id);
+    const hasDraft = state.draft.length > 0;
+    const total = hasDraft ? quoteTotal() : estimate.total;
+    const label = hasDraft ? `当前报价 · ${quoteItemCount()} 件` : estimate.label;
     return `<section class="screen"><div class="screen-content config-content"><header class="app-topbar"><button class="back-button" type="button" data-action="view" data-view="products">‹ 产品</button></header>
       <section class="config-hero">${productVisual(family, true)}<div class="config-copy"><p class="eyebrow">${family}</p><h1>${escapeHtml(item.model)}</h1><p>${escapeHtml(selectedConfiguration(item))}</p></div></section>
       <section class="config-section"><div class="segmented" role="tablist" aria-label="报价模式"><button type="button" class="${state.mode === "education" ? "is-active" : ""}" data-action="mode" data-mode="education">教育优惠</button><button type="button" class="${state.mode === "business" ? "is-active" : ""}" data-action="mode" data-mode="business">Business Purchase</button></div></section>
       ${configGroups(item).map((group) => `<section class="config-section"><h2>${group.label}</h2><div class="chip-row">${group.values.map((value) => `<button class="chip ${item[group.key] === value ? "is-active" : ""}" type="button" data-action="config" data-key="${group.key}" data-value="${escapeHtml(value)}">${escapeHtml(value)}</button>`).join("")}</div></section>`).join("")}
       ${keyboards.length ? `<section class="config-section accessory-recommendation"><div class="section-heading"><div><h2>推荐键盘</h2><p>适配当前 ${escapeHtml(item.model)}</p></div></div>${keyboards.map((keyboard) => `<button class="recommendation-card" type="button" data-action="select-product" data-id="${keyboard.id}"><span><strong>${escapeHtml(keyboard.model)}</strong><small>教育优惠价 · 点按查看配置</small></span><strong>${money(keyboard.eduPrice)}</strong></button>`).join("")}</section>` : ""}
-    </div><aside class="quote-summary" aria-label="当前报价"><div class="quote-summary-main"><button class="quote-summary-details" type="button" data-action="sheet" data-sheet="quote" aria-label="查看报价详情"><span>${estimate.label}</span><strong>${money(estimate.total)}</strong></button><button class="primary-button" type="button" data-action="present">展示报价</button></div></aside></section>`;
+    </div><aside class="quote-summary" aria-label="当前报价"><div class="quote-summary-main"><button class="quote-summary-details" type="button" data-action="sheet" data-sheet="quote" aria-label="查看报价详情"><span>${label}</span><strong>${money(total)}</strong></button>${itemInDraft ? `<button class="primary-button" type="button" data-action="sheet" data-sheet="quote">查看报价</button>` : `<button class="primary-button" type="button" data-action="add-draft">加入报价</button>`}</div></aside></section>`;
   }
 
   function renderHistory() {
@@ -1112,9 +1132,12 @@ render();
   }
 
   function renderQuoteSheet() {
-    const item = currentItem();
-    const estimate = quoteEstimate(item);
-    return `<div class="sheet-layer" role="dialog" aria-modal="true" aria-labelledby="quote-sheet-title"><div class="sheet-backdrop" data-action="close-sheet"></div><section class="sheet"><div class="sheet-handle"></div><header class="sheet-header"><h2 id="quote-sheet-title">报价详情</h2><button class="close-button" type="button" data-action="close-sheet">完成</button></header><div class="segmented" style="margin-top:18px"><button type="button" class="${state.mode === "education" ? "is-active" : ""}" data-action="mode" data-mode="education">教育优惠</button><button type="button" class="${state.mode === "business" ? "is-active" : ""}" data-action="mode" data-mode="business">Business Purchase</button></div><div class="quote-result"><span>${estimate.label}</span><strong>${money(estimate.total)}</strong><p>${estimate.supporting}</p></div><dl class="result-details">${estimate.details.map(([label, value]) => `<div><dt>${label}</dt><dd>${value}</dd></div>`).join("")}</dl>${state.mode === "business" ? `<details class="disclosure"><summary>如何计算？</summary><p>以当前官方零售价为含税金额，按 13% 增值税与 5% 企业所得税率进行理论估算，并假设具备增值税抵扣资格。结果仅供参考，不构成税务、财务或法律建议。</p></details>` : ""}<button class="wide-button" type="button" data-action="present">展示报价</button><button class="secondary-button" type="button" data-action="add-draft">加入报价</button></section></div>`;
+    const hasDraft = state.draft.length > 0;
+    const entries = quoteEntries();
+    const total = quoteTotal();
+    const label = state.mode === "education" ? (hasDraft ? "教育优惠合计" : "教育优惠价") : "预计最终成本";
+    const supporting = hasDraft ? `${quoteItemCount()} 件产品已加入报价` : "加入当前产品后，即可继续添加键盘或 Apple Pencil";
+    return `<div class="sheet-layer" role="dialog" aria-modal="true" aria-labelledby="quote-sheet-title"><div class="sheet-backdrop" data-action="close-sheet"></div><section class="sheet"><div class="sheet-handle"></div><header class="sheet-header"><h2 id="quote-sheet-title">当前报价</h2><button class="close-button" type="button" data-action="close-sheet">继续选择</button></header><div class="segmented" style="margin-top:18px"><button type="button" class="${state.mode === "education" ? "is-active" : ""}" data-action="mode" data-mode="education">教育优惠</button><button type="button" class="${state.mode === "business" ? "is-active" : ""}" data-action="mode" data-mode="business">Business Purchase</button></div><div class="quote-result"><span>${label}</span><strong>${money(total)}</strong><p>${supporting}</p></div><dl class="result-details quote-items">${entries.map((entry) => `<div><dt><strong>${escapeHtml(entry.item.model)}</strong><small>${escapeHtml(selectedConfiguration(entry.item))}${entry.quantity > 1 ? ` · ${entry.quantity} 件` : ""}</small></dt><dd><strong>${money(quoteEstimate(entry.item).total * entry.quantity)}</strong>${hasDraft ? `<button type="button" class="quote-item-remove" data-action="remove-draft" data-id="${entry.item.id}">移除</button>` : ""}</dd></div>`).join("")}</dl>${state.mode === "business" ? `<details class="disclosure"><summary>如何计算？</summary><p>以每件产品当前官方零售价为含税金额，按 13% 增值税与 5% 企业所得税率进行理论估算，并假设具备增值税抵扣资格。结果仅供参考，不构成税务、财务或法律建议。</p></details>` : ""}${hasDraft ? `<button class="wide-button" type="button" data-action="present">展示报价</button>` : `<button class="wide-button" type="button" data-action="add-draft">加入报价</button>`}</section></div>`;
   }
 
   function renderSaveSheet() {
@@ -1129,9 +1152,9 @@ render();
   }
 
   function renderPresentation() {
-    const item = currentItem();
-    const estimate = quoteEstimate(item);
-    return `<section class="presentation" role="dialog" aria-modal="true" aria-label="报价展示"><header><h1>EDU Quote</h1><button class="close-button" type="button" data-action="close-present">退出</button></header><div><section class="presentation-product"><p>${familyOf(item)}</p><h2>${escapeHtml(item.model)}</h2><p>${escapeHtml(selectedConfiguration(item))}</p></section><section class="presentation-price"><span>${estimate.label}</span><strong>${money(estimate.total)}</strong></section><div class="presentation-details">${estimate.details.map(([label, value]) => `<div><span>${label}</span><strong>${value}</strong></div>`).join("")}</div></div><div class="presentation-actions"><button type="button" data-action="share">分享报价</button></div></section>`;
+    const entries = quoteEntries();
+    const label = state.mode === "education" ? "教育优惠合计" : "预计最终成本";
+    return `<section class="presentation" role="dialog" aria-modal="true" aria-label="报价展示"><header><h1>EDU Quote</h1><button class="close-button" type="button" data-action="close-present">退出</button></header><div><section class="presentation-product"><p>${quoteItemCount()} 件产品</p><h2>报价单</h2><p>已选设备与配件</p></section><section class="presentation-price"><span>${label}</span><strong>${money(quoteTotal())}</strong></section><div class="presentation-details">${entries.map((entry) => `<div><span>${escapeHtml(entry.item.model)}${entry.quantity > 1 ? ` × ${entry.quantity}` : ""}</span><strong>${money(quoteEstimate(entry.item).total * entry.quantity)}</strong></div>`).join("")}</div></div><div class="presentation-actions"><button type="button" data-action="share">分享报价</button></div></section>`;
   }
 
   function render() {
@@ -1158,9 +1181,8 @@ render();
   }
 
   async function shareQuote() {
-    const item = currentItem();
-    const estimate = quoteEstimate(item);
-    const text = `${item.model}\n${selectedConfiguration(item)}\n${estimate.label} ${money(estimate.total)}`;
+    const label = state.mode === "education" ? "教育优惠合计" : "预计最终成本";
+    const text = `${quoteEntries().map((entry) => `${entry.item.model}${entry.quantity > 1 ? ` × ${entry.quantity}` : ""} · ${money(quoteEstimate(entry.item).total * entry.quantity)}`).join("\n")}\n${label} ${money(quoteTotal())}`;
     try {
       if (navigator.share) await navigator.share({ title: "EDU Quote", text });
       else if (navigator.clipboard) await navigator.clipboard.writeText(text);
@@ -1184,7 +1206,8 @@ render();
     if (action === "sheet") { state.sheet = target.dataset.sheet; render(); }
     if (action === "close-sheet") { state.sheet = null; render(); }
     if (action === "add-draft") addDraft();
-    if (action === "present") { addHistory(); state.sheet = null; state.presenting = true; render(); }
+    if (action === "remove-draft") { state.draft = state.draft.filter((entry) => entry.itemId !== target.dataset.id); render(); }
+    if (action === "present") { quoteEntries().forEach((entry) => addHistory(entry.item)); state.sheet = null; state.presenting = true; render(); }
     if (action === "close-present") { state.presenting = false; render(); }
     if (action === "share") shareQuote();
     if (action === "save-quote") createSavedQuote(root.querySelector("#quote-name")?.value.trim(), root.querySelector("#quote-note")?.value.trim());
