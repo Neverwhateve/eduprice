@@ -894,6 +894,7 @@ render();
   let saved = load(storageKey, []);
   let history = load(`${storageKey}:history`, []);
   let settings = load(settingsKey, { theme: "system", contrast: false, reduceMotion: false, currency: "CNY" });
+  let edgeSwipeStart = null;
 
   function load(key, fallback) {
     try {
@@ -1341,6 +1342,32 @@ render();
   root.addEventListener("input", (event) => {
     if (event.target.id === "global-search") { state.search = event.target.value; updateSearchResults(); }
   });
+
+  root.addEventListener("touchstart", (event) => {
+    if (state.view !== "config" || state.sheet || state.presenting || event.touches.length !== 1) return;
+    const touch = event.touches[0];
+    if (touch.clientX > 28) return;
+    edgeSwipeStart = { x: touch.clientX, y: touch.clientY, time: Date.now() };
+  }, { passive: true });
+
+  root.addEventListener("touchend", (event) => {
+    if (!edgeSwipeStart || event.changedTouches.length !== 1) return;
+    const touch = event.changedTouches[0];
+    const horizontalDistance = touch.clientX - edgeSwipeStart.x;
+    const verticalDistance = Math.abs(touch.clientY - edgeSwipeStart.y);
+    const duration = Date.now() - edgeSwipeStart.time;
+    edgeSwipeStart = null;
+
+    if (state.view === "config" && horizontalDistance >= 72 && horizontalDistance > verticalDistance * 1.25 && duration < 700) {
+      state.view = "products";
+      state.searchOpen = false;
+      render();
+    }
+  }, { passive: true });
+
+  root.addEventListener("touchcancel", () => {
+    edgeSwipeStart = null;
+  }, { passive: true });
 
   window.addEventListener("keydown", (event) => {
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") { event.preventDefault(); state.view = "products"; state.searchOpen = true; render(); }
