@@ -1038,7 +1038,7 @@ render();
     notify("报价已保存");
   }
 
-  function productVisual(family, expanded = false) {
+  function productVisual(family, expanded = false, item = null) {
     const officialImage = family === "MacBook Air"
       ? "assets/products/macbook-air.jpg"
       : family === "MacBook Pro"
@@ -1047,8 +1047,13 @@ render();
         ? "assets/products/ipad-air.png"
         : family === "iPad Pro"
           ? "assets/products/ipad-pro.png"
-        : "";
-    return `<div class="product-visual ${familyClass(family)}${officialImage ? " has-official-image" : ""}${expanded ? " config-visual" : ""}" aria-hidden="true">${officialImage ? `<img src="${officialImage}" alt="" />` : ""}</div>`;
+          : family === "Accessories" && item
+            ? accessoryType(item) === "Apple Pencil"
+              ? "assets/products/apple-pencil.png"
+              : "assets/products/ipad-keyboard.png"
+            : "";
+    const accessoryVisual = family === "Accessories" && item ? " accessory-visual" : "";
+    return `<div class="product-visual ${familyClass(family)}${officialImage ? " has-official-image" : ""}${accessoryVisual}${expanded ? " config-visual" : ""}" aria-hidden="true">${officialImage ? `<img src="${officialImage}" alt="" />` : ""}</div>`;
   }
 
   function renderTabbar() {
@@ -1074,6 +1079,13 @@ render();
 
   function configGroups(item) {
     const items = familyProducts(familyOf(item));
+    if (familyOf(item) === "Accessories") {
+      const type = accessoryType(item);
+      return [
+        { key: "accessoryType", label: "配件类型", values: ["Apple Pencil", "键盘"] },
+        { key: "model", label: type === "Apple Pencil" ? "选择 Pencil" : "选择键盘", values: unique(items.filter((entry) => accessoryType(entry) === type), "model") },
+      ];
+    }
     const groups = [{ key: "model", label: "尺寸", values: unique(items, "model") }];
     if (item.chip) groups.push({ key: "chip", label: "芯片", values: unique(items.filter((entry) => entry.model === item.model), "chip") });
     if (item.cpu) groups.push({ key: "cpu", label: "图形处理", values: unique(items.filter((entry) => entry.model === item.model && entry.chip === item.chip), "cpu") });
@@ -1106,9 +1118,9 @@ render();
     const total = hasDraft ? quoteTotal() : estimate.total;
     const label = hasDraft ? `当前报价 · ${quoteItemCount()} 件` : estimate.label;
     return `<section class="screen"><div class="screen-content config-content"><header class="app-topbar"><button class="back-button" type="button" data-action="view" data-view="products">‹ 产品</button></header>
-      <section class="config-hero">${productVisual(family, true)}<div class="config-copy"><p class="eyebrow">${family}</p><h1>${escapeHtml(item.model)}</h1><p>${escapeHtml(selectedConfiguration(item))}</p></div></section>
+      <section class="config-hero">${productVisual(family, true, item)}<div class="config-copy"><p class="eyebrow">${family}</p><h1>${escapeHtml(item.model)}</h1><p>${escapeHtml(selectedConfiguration(item))}</p></div></section>
       <section class="config-section"><div class="segmented" role="tablist" aria-label="报价模式"><button type="button" class="${state.mode === "education" ? "is-active" : ""}" data-action="mode" data-mode="education">教育优惠</button><button type="button" class="${state.mode === "business" ? "is-active" : ""}" data-action="mode" data-mode="business">Business Purchase</button></div></section>
-      ${configGroups(item).map((group) => `<section class="config-section"><h2>${group.label}</h2><div class="chip-row">${group.values.map((value) => `<button class="chip ${item[group.key] === value ? "is-active" : ""}" type="button" data-action="config" data-key="${group.key}" data-value="${escapeHtml(value)}">${escapeHtml(value)}</button>`).join("")}</div></section>`).join("")}
+      ${configGroups(item).map((group) => `<section class="config-section"><h2>${group.label}</h2><div class="chip-row">${group.values.map((value) => `<button class="chip ${(group.key === "accessoryType" ? accessoryType(item) : item[group.key]) === value ? "is-active" : ""}" type="button" data-action="config" data-key="${group.key}" data-value="${escapeHtml(value)}">${escapeHtml(value)}</button>`).join("")}</div></section>`).join("")}
       ${keyboards.length ? `<section class="config-section accessory-recommendation"><div class="section-heading"><div><h2>推荐键盘</h2><p>适配当前 ${escapeHtml(item.model)}</p></div></div>${keyboards.map((keyboard) => `<button class="recommendation-card" type="button" data-action="select-product" data-id="${keyboard.id}"><span><strong>${escapeHtml(keyboard.model)}</strong><small>教育优惠价 · 点按查看配置</small></span><strong>${money(keyboard.eduPrice)}</strong></button>`).join("")}</section>` : ""}
     </div><aside class="quote-summary" aria-label="当前报价"><div class="quote-summary-main"><button class="quote-summary-details" type="button" data-action="sheet" data-sheet="quote" aria-label="查看报价详情"><span>${label}</span><strong>${money(total)}</strong></button>${itemInDraft ? `<button class="primary-button" type="button" data-action="sheet" data-sheet="quote">查看报价</button>` : `<button class="primary-button" type="button" data-action="add-draft">加入报价</button>`}</div></aside></section>`;
   }
@@ -1174,6 +1186,12 @@ render();
   function selectConfig(key, value) {
     const item = currentItem();
     const candidates = familyProducts(familyOf(item));
+    if (key === "accessoryType") {
+      const foundAccessory = candidates.find((candidate) => accessoryType(candidate) === value);
+      if (foundAccessory) state.selectedId = foundAccessory.id;
+      render();
+      return;
+    }
     const proposal = { model: item.model, chip: item.chip, cpu: item.cpu, memory: item.memory, storage: item.storage, network: item.network, [key]: value };
     const found = candidates.find((candidate) => Object.entries(proposal).every(([field, expected]) => !expected || candidate[field] === expected)) || candidates.find((candidate) => candidate[key] === value && candidate.model === proposal.model) || candidates.find((candidate) => candidate[key] === value);
     if (found) state.selectedId = found.id;

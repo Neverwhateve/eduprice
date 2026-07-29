@@ -59,6 +59,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px
 .product-visual.has-official-image::before, .product-visual.has-official-image::after { display: none; }
 .product-visual img { width: 100%; height: 100%; object-fit: contain; object-position: center; transform: scale(1.22); }
 .config-visual.has-official-image img { transform: none; }
+.config-visual.accessory-visual.pencil img { transform: scale(1.08); }
 .product-visual::before, .product-visual::after { position: absolute; content: ""; }
 .product-visual.laptop::before { width: 96px; height: 61px; border: 4px solid #303235; border-bottom-width: 6px; border-radius: 5px 5px 3px 3px; background: linear-gradient(140deg, #a8c4db, #f5e6e0); transform: perspective(130px) rotateX(-4deg); }
 .product-visual.laptop::after { bottom: 19px; width: 110px; height: 6px; border-radius: 2px 2px 7px 7px; background: #9fa2a4; }
