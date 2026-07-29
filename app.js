@@ -1009,6 +1009,24 @@ render();
     notify("已加入当前报价");
   }
 
+  function addRecommendedAccessory(id) {
+    const accessory = allProducts.find((item) => item.id === id);
+    const device = currentItem();
+    if (!accessory) return;
+
+    let addedDevice = false;
+    if (!state.draft.some((entry) => entry.itemId === device.id)) {
+      state.draft.push({ itemId: device.id, quantity: 1 });
+      addedDevice = true;
+    }
+    if (state.draft.some((entry) => entry.itemId === accessory.id)) {
+      notify(`${accessory.model} 已在当前报价中`);
+      return;
+    }
+    state.draft.push({ itemId: accessory.id, quantity: 1 });
+    notify(addedDevice ? `已将 iPad 和 ${accessory.model} 加入报价` : `${accessory.model} 已加入报价`);
+  }
+
   function draftTotal() {
     return state.draft.reduce((total, entry) => {
       const item = allProducts.find((product) => product.id === entry.itemId);
@@ -1047,12 +1065,12 @@ render();
         ? "assets/products/ipad-air.png"
         : family === "iPad Pro"
           ? "assets/products/ipad-pro.png"
-          : family === "Accessories" && item
-            ? accessoryType(item) === "Apple Pencil"
-              ? "assets/products/apple-pencil.png"
-              : "assets/products/ipad-keyboard.png"
+          : family === "Accessories"
+            ? item && accessoryType(item) === "键盘"
+              ? "assets/products/ipad-keyboard.png"
+              : "assets/products/apple-pencil.png"
             : "";
-    const accessoryVisual = family === "Accessories" && item ? " accessory-visual" : "";
+    const accessoryVisual = family === "Accessories" ? " accessory-visual" : "";
     return `<div class="product-visual ${familyClass(family)}${officialImage ? " has-official-image" : ""}${accessoryVisual}${expanded ? " config-visual" : ""}" aria-hidden="true">${officialImage ? `<img src="${officialImage}" alt="" />` : ""}</div>`;
   }
 
@@ -1073,7 +1091,7 @@ render();
         return item ? `<button class="recent-card" type="button" data-action="select-product" data-id="${item.id}"><span><strong class="line-title">${escapeHtml(item.model)}</strong><small class="line-subtitle">${escapeHtml(selectedConfiguration(item))}</small></span><strong class="line-price">${money(entry.price)}</strong></button>` : "";
       }).join("")}</div></section>` : ""}
       <section class="section"><div class="section-heading"><h2>选择产品</h2><span class="eyebrow">教育优惠</span></div>
-      <div class="product-grid">${cards.map((family) => { const items = familyProducts(family); const start = Math.min(...items.map((item) => item.eduPrice)); const isAccessory = family === "Accessories"; const label = isAccessory ? "配件" : family; const action = isAccessory ? `data-action="select-product" data-id="${items[0].id}"` : `data-action="select-family" data-family="${family}"`; return `<button class="product-card" type="button" ${action}>${productVisual(family)}<span><strong class="product-name">${label}</strong><small class="product-meta">${items.length} 种教育优惠配置</small><strong class="product-price">${money(start)} 起</strong></span></button>`; }).join("")}</div></section>
+      <div class="product-grid">${cards.map((family) => { const items = familyProducts(family); const start = Math.min(...items.map((item) => item.eduPrice)); const isAccessory = family === "Accessories"; const label = isAccessory ? "配件" : family; const action = isAccessory ? "data-action=\"open-accessories\"" : `data-action="select-family" data-family="${family}"`; return `<button class="product-card" type="button" ${action} aria-label="浏览 ${label}">${productVisual(family)}<span><strong class="product-name">${label}</strong><small class="product-meta">${items.length} 种教育优惠配置</small><strong class="product-price">${money(start)} 起</strong></span></button>`; }).join("")}</div></section>
     </div></section>`;
   }
 
@@ -1106,6 +1124,13 @@ render();
     return accessoryProducts.filter((product) => product.model === "Apple Pencil Pro");
   }
 
+  function renderRecommendationCards(items) {
+    return items.map((item) => {
+      const isAdded = state.draft.some((entry) => entry.itemId === item.id);
+      return `<button class="recommendation-card" type="button" data-action="add-recommended-accessory" data-id="${item.id}"><span><strong>${escapeHtml(item.model)}</strong><small>教育优惠价</small></span><span class="recommendation-cta"><strong>${money(item.eduPrice)}</strong><small>${isAdded ? "已加入" : "加入报价"}</small></span></button>`;
+    }).join("");
+  }
+
   function quoteEstimate(item) {
     if (state.mode === "education") return { total: item.eduPrice, label: "教育优惠价", supporting: `比官网价节省 ${money(item.saving)}`, details: [["官网价格", money(item.officialPrice)], ["节省", money(item.saving)]] };
     const estimate = utils?.calculateTaxEstimate?.({ taxInclusivePrice: item.officialPrice, vatRate: 13, incomeTaxRate: 5, canDeductVat: true });
@@ -1127,8 +1152,8 @@ render();
       <section class="config-hero">${productVisual(family, true, item)}<div class="config-copy"><p class="eyebrow">${family}</p><h1>${escapeHtml(item.model)}</h1><p>${escapeHtml(selectedConfiguration(item))}</p></div></section>
       <section class="config-section"><div class="segmented" role="tablist" aria-label="报价模式"><button type="button" class="${state.mode === "education" ? "is-active" : ""}" data-action="mode" data-mode="education">教育优惠</button><button type="button" class="${state.mode === "business" ? "is-active" : ""}" data-action="mode" data-mode="business">Business Purchase</button></div></section>
       ${configGroups(item).map((group) => `<section class="config-section"><h2>${group.label}</h2><div class="chip-row">${group.values.map((value) => `<button class="chip ${(group.key === "accessoryType" ? accessoryType(item) : item[group.key]) === value ? "is-active" : ""}" type="button" data-action="config" data-key="${group.key}" data-value="${escapeHtml(value)}">${escapeHtml(value)}</button>`).join("")}</div></section>`).join("")}
-      ${keyboards.length ? `<section class="config-section accessory-recommendation"><div class="section-heading"><div><h2>推荐键盘</h2><p>适配当前 ${escapeHtml(item.model)}</p></div></div>${keyboards.map((keyboard) => `<button class="recommendation-card" type="button" data-action="select-product" data-id="${keyboard.id}"><span><strong>${escapeHtml(keyboard.model)}</strong><small>教育优惠价 · 点按查看配置</small></span><strong>${money(keyboard.eduPrice)}</strong></button>`).join("")}</section>` : ""}
-      ${pencils.length ? `<section class="config-section accessory-recommendation"><div class="section-heading"><div><h2>推荐 Apple Pencil</h2><p>兼容当前 ${escapeHtml(item.model)}</p></div></div>${pencils.map((pencil) => `<button class="recommendation-card" type="button" data-action="select-product" data-id="${pencil.id}"><span><strong>${escapeHtml(pencil.model)}</strong><small>教育优惠价 · 点按查看配置</small></span><strong>${money(pencil.eduPrice)}</strong></button>`).join("")}</section>` : ""}
+      ${keyboards.length ? `<section class="config-section accessory-recommendation"><div class="section-heading"><div><h2>推荐键盘</h2><p>适配当前 ${escapeHtml(item.model)}</p></div></div>${renderRecommendationCards(keyboards)}</section>` : ""}
+      ${pencils.length ? `<section class="config-section accessory-recommendation"><div class="section-heading"><div><h2>推荐 Apple Pencil</h2><p>兼容当前 ${escapeHtml(item.model)}</p></div></div>${renderRecommendationCards(pencils)}</section>` : ""}
     </div><aside class="quote-summary" aria-label="当前报价"><div class="quote-summary-main"><button class="quote-summary-details" type="button" data-action="sheet" data-sheet="quote" aria-label="查看报价详情"><span>${label}</span><strong>${money(total)}</strong></button>${itemInDraft ? `<button class="primary-button" type="button" data-action="sheet" data-sheet="quote">查看报价</button>` : `<button class="primary-button" type="button" data-action="add-draft">加入报价</button>`}</div></aside></section>`;
   }
 
@@ -1235,12 +1260,14 @@ render();
     if (action === "search") { state.view = "products"; state.searchOpen = true; render(); }
     if (action === "close-search") { state.searchOpen = false; state.search = ""; render(); }
     if (action === "select-family") { const item = familyProducts(target.dataset.family)[0]; if (item) selectProduct(item.id); }
+    if (action === "open-accessories") { const item = familyProducts("Accessories")[0]; if (item) selectProduct(item.id); }
     if (action === "select-product") selectProduct(target.dataset.id);
     if (action === "config") selectConfig(target.dataset.key, target.dataset.value);
     if (action === "mode") { state.mode = target.dataset.mode; render(); }
     if (action === "sheet") { state.sheet = target.dataset.sheet; render(); }
     if (action === "close-sheet") { state.sheet = null; render(); }
     if (action === "add-draft") addDraft();
+    if (action === "add-recommended-accessory") addRecommendedAccessory(target.dataset.id);
     if (action === "remove-draft") { state.draft = state.draft.filter((entry) => entry.itemId !== target.dataset.id); render(); }
     if (action === "present") { quoteEntries().forEach((entry) => addHistory(entry.item)); state.sheet = null; state.presenting = true; render(); }
     if (action === "close-present") { state.presenting = false; render(); }

@@ -102,7 +102,9 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px
 .recommendation-card { display: grid; width: 100%; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 14px; border: 0; border-radius: var(--radius); background: var(--surface); color: var(--ink); padding: 15px; text-align: left; }
 .recommendation-card strong { display: block; font-size: 15px; letter-spacing: -0.02em; }
 .recommendation-card small { display: block; margin-top: 5px; color: var(--muted); font-size: 12px; }
-.recommendation-card > strong { color: var(--blue); font-size: 15px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.recommendation-cta { display: grid; justify-items: end; gap: 4px; color: var(--blue); white-space: nowrap; }
+.recommendation-cta strong { color: var(--blue); font-variant-numeric: tabular-nums; }
+.recommendation-cta small { margin: 0; color: var(--blue); font-weight: 600; }
 .config-content { padding-bottom: 118px; }
 .quote-summary { position: fixed; z-index: 8; right: 12px; bottom: calc(12px + var(--safe-bottom)); left: 12px; border: 1px solid rgba(255,255,255,.4); border-radius: 18px; background: color-mix(in srgb, var(--surface) 94%, transparent); box-shadow: 0 8px 20px rgba(0,0,0,.11); backdrop-filter: blur(22px); }
 .quote-summary-main { display: flex; min-height: 66px; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 11px 10px 15px; }
